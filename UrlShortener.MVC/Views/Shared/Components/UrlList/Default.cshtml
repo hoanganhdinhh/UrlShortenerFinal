@@ -1,0 +1,45 @@
+﻿@model IEnumerable<UrlShortener.MVC.Models.UrlVM>
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">No shortened URLs yet.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Short</th>
+                    <th style="min-width: 240px;">Original URL</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <a href="@($"/r/{item.ShortCode}")" target="_blank" rel="noopener noreferrer">
+                                @Html.Encode(item.ShortCode)
+                            </a>
+                        </td>
+                        <td class="text-truncate" style="max-width:400px;">
+                            <a href="@Html.Encode(item.OriginalUrl)" target="_blank" rel="noopener noreferrer" class="d-inline-block text-truncate" style="max-width:100%;">
+                                @Html.Encode(item.OriginalUrl)
+                            </a>
+                        </td>
+                        <td>@item.CreatedAt.ToString("yyyy/MM/dd")</td>
+                        <td>
+                            <a asp-controller="Urls" asp-action="Details" asp-route-id="@item.Id">Detail</a>
+                            <div class="vr mx-2"></div>
+                            <a asp-controller="Urls" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary  me-1"><img src="~/images/pencil-square.svg" class="img-fluid me-1">Edit</a>
+                            @* <button type="button" class="btn btn-primary" onclick="openModalEditUrl(@item.Id)"><img src="~/images/pencil-square.svg" class="img-fluid me-1">Edit</button> *@
+                            <button type="button" class="btn btn-danger" onclick="openModalDeleteUrl(@item.Id)"><img src="~/images/trash.svg" /> Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

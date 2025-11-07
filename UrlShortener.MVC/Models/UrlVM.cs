@@ -13,7 +13,7 @@ namespace UrlShortener.MVC.Models
         [MaxLength(MaxLengths.OriginalUrl)]
         public string OriginalUrl { get; set; } = string.Empty;
         [MaxLength(MaxLengths.ShortCode)]
-        public string ShortCode { get; set; } = string.Empty;
+        public string? ShortCode { get; set; }
         public DateTime CreatedAt { get; set; }
         public long ClickCount { get; set; }
         public string? UserId { get; set; }
