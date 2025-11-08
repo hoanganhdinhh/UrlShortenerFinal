@@ -36,6 +36,35 @@
         </main>
     </div>
 
+    <div class="modal fade custom-modal" id="divModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content shadow-sm">
+                <div class="modal-header border-0">
+                    <div class="d-flex align-items-center">
+                        <svg class="me-2" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 2L12 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12L22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <h5 class="modal-title mb-0" id="modalLabel">Tiêu đề Modal</h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-lg" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div id="divModalBody" class="modal-body">
+                    <div>Nội dung chính của Modal</div>
+                </div>
+
+                @* <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div> *@
+            </div>
+        </div>
+    </div>
+
+    <button id="buttonModal" type="button" hidden class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#divModal">
+        Open Modal
+    </button>
+
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - UrlShortener.MVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -44,6 +73,34 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        function openModal(title, bodyHTML) {
+            let modalLabel = document.getElementById("modalLabel");
+            if(modalLabel) {
+                modalLabel.innerText = title;
+            }
+
+            let divModalBody = document.getElementById("divModalBody");
+            if(divModalBody) {
+                divModalBody.innerHTML = bodyHTML;
+            }
+
+            let buttonModal = document.getElementById("buttonModal");
+            if(buttonModal) {
+                buttonModal.click();
+            }
+        }
+        function closeModal() {
+            // Use Bootstrap's API for a reliable close
+            const modalEl = document.getElementById('divModal');
+            if (modalEl) {
+                const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modalInstance.hide();
+            }
+        }
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

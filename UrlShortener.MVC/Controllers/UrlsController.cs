@@ -62,9 +62,10 @@ namespace UrlShortener.MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UrlVM urlVM)
         {
+            int maxShortCodeLength = AppConstant.ShortCodeLength;
             urlVM.ShortCode = NormalizeShortCode(urlVM.ShortCode);
             if (string.IsNullOrWhiteSpace(urlVM.ShortCode))
-                urlVM.ShortCode = await GenerateUniqueShortCodeAsync(6);
+                urlVM.ShortCode = await GenerateUniqueShortCodeAsync(maxShortCodeLength);
 
             // System-managed fields
             urlVM.CreatedAt = DateTime.UtcNow;
@@ -217,7 +218,7 @@ namespace UrlShortener.MVC.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Create));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -240,7 +241,7 @@ namespace UrlShortener.MVC.Controllers
             var url = await _context.Urls.FirstOrDefaultAsync(m => m.Id == id);
             if (url == null) return NotFound();
 
-            return View(url);
+            return PartialView(url);
         }
 
         // POST: /Urls/Delete/5
@@ -248,12 +249,21 @@ namespace UrlShortener.MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            bool isOK = false;
+            string message = "";
             var url = await _context.Urls.FindAsync(id);
-            if (url == null) return NotFound();
-
-            _context.Urls.Remove(url);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            if (url != null)
+            {
+                _context.Urls.Remove(url);
+                await _context.SaveChangesAsync();
+                isOK = true;
+                message = "Url deleted successfully.";
+            }
+            else
+            {
+                message = "Url not found.";
+            }
+            return Json(new { isOK = isOK, message = message });
         }
 
         // Helpers
@@ -270,7 +280,7 @@ namespace UrlShortener.MVC.Controllers
                 .ToArray());
         }
 
-        private async Task<string> GenerateUniqueShortCodeAsync(int length = 6)
+        private async Task<string> GenerateUniqueShortCodeAsync(int length)
         {
             // include uppercase letters so generated codes can contain capitals
             const string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -290,5 +300,13 @@ namespace UrlShortener.MVC.Controllers
                 if (!exists) return candidate;
             }
         }
+
+        public IActionResult Reload()
+        {
+            return ViewComponent("UrlList");
+        }
+
+
+
     }
 }

@@ -50,10 +50,96 @@
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<script>
+    function openModalDeleteUrl(idUrl) {
+        $.ajax({
+            url: "/Urls/Delete",
+            type: "GET",
+            data:{
+                id: idUrl,
+            },
+            beforeSend: function(){
+                console.log("Loading...");
+            },
+            success: function (response){
+                console.log("Kết quả:", response);
+                openModal("", response);
+            },
+            error: function(xhr, status, error) {
+                console.error("Lỗi:", error);
+                console.log("Chi tiết:", xhr.responseText);
+            },
+            complete: function() {
+                console.log("Hoàn tất AJAX request");
+            },
+            timeout: 5000 
+            
+        });
+    }
+
+    function deleteUrl(idUrl) {
+        let inputToken = document.querySelector('input[name="__RequestVerificationToken"]');
+        let token = inputToken?.value;
+        $.ajax({
+            url: "/Urls/Delete",
+            type: "POST",
+            data:{
+                id: idUrl,
+                __RequestVerificationToken: token
+            },
+            beforeSend: function(){
+                console.log("Deleting...");
+            },
+            success: function (response){
+                console.log("Kết quả:", response);
+                if(response.isOK) {
+                    reloadUrlList();
+                    closeModal();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Lỗi:", error);
+                console.log("Chi tiết:", xhr.responseText);
+            },
+            complete: function() {
+                console.log("Hoàn tất AJAX request");
+            },
+            timeout: 5000 
+            
+        });
+    }
+
+    function reloadUrlList() {
+        $.ajax({
+            url: "/Urls/Reload",
+            type: "GET",
+            beforeSend: function(){
+                console.log("Reloading Url List...");
+            },
+            success: function (response){
+                console.log("Kết quả:", response);
+                let divUrlList = document.getElementById("divUrlList");
+                if(divUrlList) {
+                    divUrlList.innerHTML = response;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Lỗi:", error);
+                console.log("Chi tiết:", xhr.responseText);
+            },
+            complete: function() {
+                console.log("Hoàn tất AJAX request");
+            },
+            timeout: 5000 
+            
+        });
+    }
+
+
+
+</script>
