@@ -1,12 +1,13 @@
-﻿using System.Security.Claims;
-using System.Text;
-using Azure.Core;
+﻿using Azure.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Encodings.Web;
 using UrlShortener.MVC.Data.Entities.Identities;
 using UrlShortener.MVC.Models.Identities;
 
@@ -108,87 +109,62 @@ namespace UrlShortener.MVC.Controllers
             };
             return View(registerVM);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterVM registerVM)
+        public async Task<IActionResult> Register(RegisterVM model, string? returnUrl = null)
         {
-            registerVM.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+
+            var user = new UrlShortenerUser { UserName = model.Email, Email = model.Email };
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
             {
-                var user = CreateUser();
-
-                await _userStore.SetUserNameAsync(user, registerVM.Email, CancellationToken.None);
-                await _emailStore.SetEmailAsync(user, registerVM.Email, CancellationToken.None);
-                var result = await _userManager.CreateAsync(user, registerVM.Password);
-
-                if (result.Succeeded)
-                {
-                    //_logger.LogInformation("User created a new account with password.");
-
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = registerVM.ReturnUrl },
-                        protocol: Request.Scheme);
-
-                    //await _emailSender.SendEmailAsync(registerVM.Email, "Confirm your email",
-                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        //return RedirectToPage("RegisterConfirmation", new { email = registerVM.Email, returnUrl = registerVM.ReturnUrl });
-                        return RedirectToAction("RegisterConfirmation", new { email = registerVM.Email, returnUrl = registerVM.ReturnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(registerVM.ReturnUrl);
-                    }
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+                foreach (var e in result.Errors) ModelState.AddModelError(string.Empty, e.Description);
+                return View(model);
             }
-            return View(registerVM);
+
+            // Tạo token + link xác nhận
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var codeEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = Url.Action(
+                action: "ConfirmEmail",
+                controller: "Authentication",
+                values: new { userId = user.Id, code = codeEncoded, returnUrl },
+                protocol: Request.Scheme)!;
+
+            // Gửi mail
+            await _emailSender.SendEmailAsync(model.Email, "Confirm your email",
+                $"Thank you for registering an account with us. We are excited to have you on board.<br><br>To complete your registration, please confirm your email address by clicking the link below: <br><br><a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Click Here</a><br><br>If you did not request this account, please disregard this email.<br><br>Best regards");
+
+            // Chuyển tới trang thông báo
+            return RedirectToAction(nameof(RegisterConfirmation), new { email = model.Email, returnUrl });
         }
 
-        public async Task<IActionResult> RegisterConfirmation(string email, string returnUrl)
+        [HttpGet]
+        public async Task<IActionResult> RegisterConfirmation(string? email, string? returnUrl)
         {
-            if (email == null)
-            {
-                return RedirectToAction(nameof(Login));
-            }
+            if (string.IsNullOrWhiteSpace(email)) return RedirectToAction(nameof(Login));
 
             var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with email '{email}'.");
-            }
+            if (user is null) return NotFound($"Unable to load user with email '{email}'.");
 
-            // Once you add a real email sender, you should remove this code that lets you confirm the account
-
-            var userId = await _userManager.GetUserIdAsync(user);
+            // Dev mode: hiển thị sẵn link xác nhận (tùy chọn)
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var model = new RegisterConfirmationVM
+            var codeEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var confirmUrl = Url.Action("ConfirmEmail", "Authentication",
+                new { userId = user.Id, code = codeEncoded, returnUrl }, Request.Scheme);
+
+            var vm = new RegisterConfirmationVM
             {
                 Email = email,
-                UserId = userId,
-                Code = code,
-                //DisplayConfirmAccountLink = true,
-                //EmailConfirmationUrl = Action(
-                //    "/Account/ConfirmEmail",
-                //    pageHandler: null,
-                //    values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                //    protocol: Request.Scheme),
-                ReturnUrl = returnUrl
+                ReturnUrl = returnUrl,
+                EmailConfirmationUrl = confirmUrl,      // dùng trong View nếu muốn show link
+                DisplayConfirmAccountLink = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
             };
-            return View(model);
+            return View(vm);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterConfirmation(RegisterConfirmationVM registerConfirmationVM)
@@ -210,6 +186,78 @@ namespace UrlShortener.MVC.Controllers
             var statusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
             return LocalRedirect(registerConfirmationVM.ReturnUrl);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string? userId, string? code, string? returnUrl)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(code))
+                return RedirectToAction("Index", "Home");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null) return NotFound($"Unable to load user with ID '{userId}'.");
+
+            var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var result = await _userManager.ConfirmEmailAsync(user, decodedCode);
+
+            if (result.Succeeded)
+            {
+                // (tuỳ chọn) tự động đăng nhập sau khi xác nhận
+                // await _signInManager.SignInAsync(user, isPersistent: false);
+
+                // Tránh lỗi khi returnUrl null hoặc không local
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return LocalRedirect(returnUrl);
+
+                TempData["StatusMessage"] = "Cảm ơn bạn đã xác nhận email.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            TempData["StatusMessage"] = "Có lỗi khi xác nhận email.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        //// Gửi lại email xác nhận
+        //[HttpGet]
+        //public async Task<IActionResult> ResendConfirmation(string email, string? returnUrl = null)
+        //{
+        //    if (string.IsNullOrWhiteSpace(email))
+        //        return RedirectToAction(nameof(Login));
+
+        //    var user = await _userManager.FindByEmailAsync(email);
+        //    if (user is null) return RedirectToAction(nameof(Login));
+
+        //    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        //    var code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+        //    var callbackUrl = Url.Action(
+        //        action: "ConfirmEmail",
+        //        controller: "Authentication",
+        //        values: new { userId = user.Id, code },
+        //        protocol: Request.Scheme);
+
+        //    await _emailSender.SendEmailAsync(email,
+        //        "Confirm your email",
+        //        $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
+
+        //    TempData["Resent"] = true;
+        //    return RedirectToAction(nameof(RegisterConfirmation), new { email, returnUrl });
+        //}
+
+        //[HttpGet]
+        //public async Task<IActionResult> ConfirmEmail(string userId, string code, string? returnUrl = null)
+        //{
+        //    if (userId == null || code == null) return BadRequest();
+
+        //    var user = await _userManager.FindByIdAsync(userId);
+        //    if (user == null) return NotFound();
+
+        //    var decoded = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+        //    var result = await _userManager.ConfirmEmailAsync(user, decoded);
+
+        //    if (result.Succeeded) return Redirect(returnUrl ?? Url.Content("~/"));
+        //    foreach (var e in result.Errors) ModelState.AddModelError("", e.Description);
+        //    return View("Error");
+        //}
+
 
         public IActionResult ExternalLogin()
         {

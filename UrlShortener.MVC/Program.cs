@@ -1,3 +1,4 @@
+using UrlShortener.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,10 @@ using UrlShortener.MVC.Data.Entities.Identities;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
+builder.Services.AddMailjet(builder.Configuration);
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<UrlShortenerDbContext>(options =>
