@@ -19,9 +19,9 @@
             <div class="form-group">
                 <label asp-for="ShortCode" class="control-label"></label>
                 <input asp-for="ShortCode" class="form-control" />
-                <span asp-validation-for="ShortCode" class="text-danger"></span> 
+                <span asp-validation-for="ShortCode" class="text-danger"></span>
             </div>
-         @* <div class="form-group">
+            @* <div class="form-group">
                 <label asp-for="ClickCount" class="control-label"></label>
                 <input asp-for="ClickCount" class="form-control" />
                 <span asp-validation-for="ClickCount" class="text-danger"></span>
@@ -52,7 +52,9 @@
 
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
 
 <script>
@@ -77,8 +79,8 @@
             complete: function() {
                 console.log("Hoàn tất AJAX request");
             },
-            timeout: 5000 
-            
+            timeout: 5000
+
         });
     }
 
@@ -109,8 +111,8 @@
             complete: function() {
                 console.log("Hoàn tất AJAX request");
             },
-            timeout: 5000 
-            
+            timeout: 5000
+
         });
     }
 
@@ -135,11 +137,108 @@
             complete: function() {
                 console.log("Hoàn tất AJAX request");
             },
-            timeout: 5000 
-            
+            timeout: 5000
+
         });
     }
 
+    function openModalEditUrl(idUrl) {
+        $.ajax({
+            url: "/Urls/Edit",
+            type: "GET",
+            data:{
+                id: idUrl,
+            },
+            beforeSend: function(){
+                console.log("Loading...");
+            },
+            success: function (response){
+                console.log("Kết quả:", response);
+                openModal("", response);
+            },
+            error: function(xhr, status, error) {
+                console.error("Lỗi:", error);
+                console.log("Chi tiết:", xhr.responseText);
+            },
+            complete: function() {
+                console.log("Hoàn tất AJAX request");
+            },
+            timeout: 5000
 
+        });
+    }
+
+    // function editUrl(idUrl, originalUrl, shortCode) {
+    //     let inputToken = document.querySelector('input[name="__RequestVerificationToken"]');
+    //     let token = inputToken?.value;
+    //     $.ajax({
+    //         url: "/Urls/Edit",
+    //         type: "POST",
+    //         data:{
+    //             Id: idUrl,
+    //             OriginalUrl: originalUrl,
+    //             ShortCode: shortCode,
+    //             __RequestVerificationToken: token
+    //         },
+    //         beforeSend: function(){
+    //             console.log("Deleting...");
+    //         },
+    //         success: function (response){
+    //             console.log("Kết quả:", response);
+    //             if(response.isOK) {
+    //                 reloadUrlList();
+    //                 closeModal();
+    //             } else {
+    //                 console.log("Lỗi khi chỉnh sửa URL:", response.errorMessage);
+    //             }
+
+    //         },
+    //         error: function(xhr, status, error) {
+    //             console.error("Lỗi:", error);
+    //             console.log("Chi tiết:", xhr.responseText);
+    //         },
+    //         complete: function() {
+    //             console.log("Hoàn tất AJAX request");
+    //         },
+    //         timeout: 5000
+
+    //     });
+    // }
+
+    document.addEventListener('click', function (e) {
+        if (!e.target) return;
+        if (e.target.id === 'btnSaveEdit') {
+            e.preventDefault();
+            var $form = $('#divModalBody').find('form').first();
+            if (!$form || $form.length === 0) {
+                console.error('Edit form not found in modal');
+                return;
+            }
+
+            $.ajax({
+                url: $form.attr('action') || '/Urls/Edit',
+                type: 'POST',
+                data: $form.serialize(), // includes Id and __RequestVerificationToken
+                beforeSend: function() {
+                    console.log("Saving edit...");
+                },
+                success: function (response) {
+                    // If server returned JSON { isOK: true } -> success
+                    if (response && typeof response === 'object' && response.isOK) {
+                        reloadUrlList();
+                        closeModal();
+                        return;
+                    }
+
+                    // Otherwise treat response as HTML partial (validation errors or re-rendered form)
+                    $('#divModalBody').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Edit POST error:", error);
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+    });
 
 </script>

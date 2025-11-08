@@ -188,7 +188,7 @@ namespace UrlShortener.MVC.Controllers
             var url = await _context.Urls.FindAsync(id);
             if (url == null) return NotFound();
 
-            return View(url);
+            return PartialView(url);
         }
 
         // POST: /Urls/Edit/5
@@ -196,6 +196,8 @@ namespace UrlShortener.MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UrlVM urlVM)
         {
+            bool isOK = false;
+            string message = "";
             if (id != urlVM.Id) return NotFound();
 
             var dbUrl = await _context.Urls.FirstOrDefaultAsync(u => u.Id == id);
@@ -218,8 +220,10 @@ namespace UrlShortener.MVC.Controllers
 
             try
             {
+                isOK = true;
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Create));
+                //return RedirectToAction(nameof(Create));
+                return Json(new { isOK = isOK, message = message });
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -230,7 +234,7 @@ namespace UrlShortener.MVC.Controllers
             {
                 _logger.LogError(ex, "Edit Url failed");
                 ModelState.AddModelError(string.Empty, "Could not update URL.");
-                return View(dbUrl);
+                return PartialView(dbUrl);
             }
         }
 

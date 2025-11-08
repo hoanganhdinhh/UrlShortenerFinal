@@ -33,8 +33,7 @@ else
                         <td>
                             <a asp-controller="Urls" asp-action="Details" asp-route-id="@item.Id">Detail</a>
                             <div class="vr mx-2"></div>
-                            <a asp-controller="Urls" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary  me-1"><img src="~/images/pencil-square.svg" class="img-fluid me-1">Edit</a>
-                            @* <button type="button" class="btn btn-primary" onclick="openModalEditUrl(@item.Id)"><img src="~/images/pencil-square.svg" class="img-fluid me-1">Edit</button> *@
+                            <button type="button" class="btn btn-primary me-1" onclick="openModalEditUrl(@item.Id)"><img src="~/images/pencil-square.svg" class="img-fluid me-1">Edit</button>
                             <button type="button" class="btn btn-danger" onclick="openModalDeleteUrl(@item.Id)"><img src="~/images/trash.svg" /> Delete</button>
                         </td>
                     </tr>
