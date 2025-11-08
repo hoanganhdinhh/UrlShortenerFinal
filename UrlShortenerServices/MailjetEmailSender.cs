@@ -15,7 +15,7 @@ public class MailjetEmailSender : IEmailSender
     public MailjetEmailSender(IOptions<MailjetOptions> options)
     {
         _options = options.Value;
-        _client = new MailjetClient(_options.ApiKey, _options.ApiSecret); // ❌ KHÔNG set Version
+        _client = new MailjetClient(_options.ApiKey, _options.ApiSecret);
     }
 
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
