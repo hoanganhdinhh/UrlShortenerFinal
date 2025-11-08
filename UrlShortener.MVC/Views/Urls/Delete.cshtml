@@ -29,7 +29,7 @@
                                     </a>
                                 </dd>
 
-                                <dt class="col-sm-3">Short Link</dt>
+                                <dt class="col-sm-3 text-muted">Short Link</dt>
                                 <dd class="col-sm-9">
                                     <a href="@($"/r/{Model.ShortCode}")" target="_blank" rel="noopener noreferrer">
                                         @Model.ShortCode
@@ -45,11 +45,11 @@
                                 <dt class="col-sm-3 text-muted">Created</dt>
                                 <dd class="col-sm-9">@Model.CreatedAt.ToString("g")</dd>
 
-                                <dt class="col-sm-3 text-muted">Owner</dt>
-                                <dd class="col-sm-9">@Model.UserId</dd>
+                                @* <dt class="col-sm-3 text-muted">Owner</dt>
+                                <dd class="col-sm-9">@Model.UserId</dd> *@
                             </dl>
 
-                            <div class="d-flex gap-2">
+                            <div class="d-flex justify-content-end gap-2">
                                 @* <a asp-action="Create" class="btn btn-outline-secondary">Back to list</a> *@
                                 <button type="button" class="btn btn-outline-secondary" onclick="closeModal()">Cancel</button>
 
