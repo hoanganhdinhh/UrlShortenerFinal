@@ -33,24 +33,43 @@ builder.Services.AddIdentity<UrlShortenerUser, UrlShortenerRole>(options =>
     // Sign-in settings 
     options.SignIn.RequireConfirmedEmail = false;
     options.SignIn.RequireConfirmedPhoneNumber = false;
-}).AddEntityFrameworkStores<UrlShortenerDbContext>()
+}).AddEntityFrameworkStores<UrlShortenerIdentityDbContext>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 
-builder.Services.ConfigureApplicationCookie(options =>
+// Google login
+builder.Services.AddAuthentication()
+    .AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        googleOptions.SaveTokens = true;
+    });
+
+//builder.Services.ConfigureApplicationCookie(options =>
+//{
+//    //options.LoginPath = "/Identity/Account/Login";
+//    options.LoginPath = "/Authentication/Login";
+//    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+//});
+
+builder.Services.ConfigureApplicationCookie(o =>
 {
-    //options.LoginPath = "/Identity/Account/Login";
-    options.LoginPath = "/Authentication/Login";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    o.LoginPath = "/Identity/Account/Login";
+    o.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
-//builder.Services.AddDistributedMemoryCache();
-//builder.Services.AddSession(options =>
-//{
-//    options.IdleTimeout = TimeSpan.FromMinutes(60);
-//    options.Cookie.HttpOnly = true;
-//    options.Cookie.IsEssential = true;
-//});
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
@@ -69,11 +88,12 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapRazorPages();
 
 app.MapControllerRoute(
     name: "default",
     //pattern: "{controller=Home}/{action=Index}/{id?}");
     pattern: "{controller=Urls}/{action=Create}");
+
+app.MapRazorPages();
 
 app.Run();
