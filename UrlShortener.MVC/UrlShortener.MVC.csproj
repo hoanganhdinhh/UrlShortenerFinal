@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UrlShortenerServices\UrlShortenerServices.csproj" />
+    <ProjectReference Include="..\UrlShortenerServices\UrlShortener.Services.csproj" />
   </ItemGroup>
 
 </Project>

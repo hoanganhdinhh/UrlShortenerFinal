@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36623.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.MVC", "UrlShortener.MVC\UrlShortener.MVC.csproj", "{14A4AB63-92F3-4950-AC0A-FB3BF00055A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortenerServices", "UrlShortenerServices\UrlShortenerServices.csproj", "{8B1A50DD-18EE-43C2-A772-9D474BFCC8EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.Services", "UrlShortenerServices\UrlShortener.Services.csproj", "{8B1A50DD-18EE-43C2-A772-9D474BFCC8EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
