@@ -13,10 +13,11 @@ using QRCoder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UrlShortener.MVC.Controllers
 {
-    // [Authorize] // or [Authorize(Roles="Admin")]
+    [Authorize]
     public class UrlsController : Controller
     {
         private readonly UrlShortenerDbContext _context;

@@ -82,18 +82,18 @@ builder.Services.AddAuthentication()
         });
     });
 
-//builder.Services.ConfigureApplicationCookie(options =>
-//{
-//    //options.LoginPath = "/Identity/Account/Login";
-//    options.LoginPath = "/Authentication/Login";
-//    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-//});
-
-builder.Services.ConfigureApplicationCookie(o =>
+builder.Services.ConfigureApplicationCookie(options =>
 {
-    o.LoginPath = "/Identity/Account/Login";
-    o.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    //options.LoginPath = "/Identity/Account/Login";
+    options.LoginPath = "/Authentication/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
+
+//builder.Services.ConfigureApplicationCookie(o =>
+//{
+//    o.LoginPath = "/Identity/Account/Login";
+//    o.AccessDeniedPath = "/Identity/Account/AccessDenied";
+//});
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

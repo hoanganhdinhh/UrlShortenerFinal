@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using Azure.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -204,6 +205,64 @@ namespace UrlShortener.MVC.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, code);
             var statusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
             return LocalRedirect(registerConfirmationVM.ReturnUrl);
+        }
+
+        public IActionResult ExternalLogin()
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ExternalLogin(string provider, string? returnUrl)
+        {
+            // Request a redirect to the external login provider.
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Authentication", new { returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return new ChallengeResult(provider, properties);
+        }
+
+        // GET: Callback from external provider (based on OnGetCallbackAsync)
+        [HttpGet]
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl, string? remoteError)
+        {
+            returnUrl ??= Url.Content("~/");
+            if (remoteError != null)
+            {
+                TempData["ErrorMessage"] = $"Error from external provider: {remoteError}";
+                return RedirectToAction(nameof(Login), new { returnUrl });
+            }
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                TempData["ErrorMessage"] = "Error loading external login information.";
+                return RedirectToAction(nameof(Login), new { returnUrl });
+            }
+
+            // Sign in the user with this external login provider if the user already has a login.
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            if (result.Succeeded)
+            {
+                //_logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+                return LocalRedirect(returnUrl);
+            }
+            if (result.IsLockedOut)
+            {
+                TempData["ErrorMessage"] = "User account locked out.";
+                return RedirectToAction(nameof(Login));
+            }
+            else
+            {
+                // If the user does not have an account, redirect to Register and prefill the email if we have one.
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                if (!string.IsNullOrEmpty(email))
+                {
+                    TempData["ExternalEmail"] = email;
+                }
+                TempData["ProviderDisplayName"] = info.ProviderDisplayName;
+                // In a complete flow you'd show a confirmation page to create the local account and link the external login.
+                return RedirectToAction(nameof(Register), new { returnUrl });
+            }
         }
 
         private UrlShortenerUser CreateUser()
