@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using UrlShortener.MVC.Commons;
+using UrlShortener.MVC.Data.Entities.Identities;
 
 namespace UrlShortener.MVC.Data.Entities
 {
@@ -19,7 +20,9 @@ namespace UrlShortener.MVC.Data.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public string? UserId { get; set; }   // khóa ngoại nếu dùng Microsoft Identity
+        public string? UserId { get; set; } = string.Empty;  // khóa ngoại nếu dùng Microsoft Identity
+
+        public UrlShortenerUser? User { get; set; } // Navigation property
         #endregion
     }
 }
