@@ -32,4 +32,8 @@
     <PackageReference Include="QRCoder" Version="1.7.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UrlShortenerServices\UrlShortenerServices.csproj" />
+  </ItemGroup>
+
 </Project>
