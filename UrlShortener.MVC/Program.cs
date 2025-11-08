@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UrlShortener.MVC.Data;
@@ -44,6 +45,41 @@ builder.Services.AddAuthentication()
         googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
         googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
         googleOptions.SaveTokens = true;
+    });
+
+// Microsoft login
+builder.Services.AddAuthentication()
+    .AddMicrosoftAccount(msOpts =>
+    {
+        msOpts.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
+        msOpts.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
+        // Callback m?c ??nh: /signin-microsoft (ph?i trùng v?i Azure portal)
+        msOpts.SaveTokens = true;
+    });
+
+// Facebook login
+builder.Services.AddAuthentication()
+    .AddFacebook(fb =>
+    {
+        fb.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
+        fb.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
+        fb.SaveTokens = true;
+
+        // L?y thêm email (m?c ??nh Facebook không luôn tr?)
+        fb.Scope.Add("email");
+        fb.Fields.Add("email");
+        fb.Fields.Add("name");
+        fb.Fields.Add("picture");
+
+        // Map avatar vào claim tu? bi?n (n?u mu?n l?u ?nh)
+        fb.ClaimActions.MapCustomJson("urn:facebook:picture", user =>
+        {
+            try
+            {
+                return user.GetProperty("picture").GetProperty("data").GetProperty("url").GetString();
+            }
+            catch { return null; }
+        });
     });
 
 //builder.Services.ConfigureApplicationCookie(options =>
