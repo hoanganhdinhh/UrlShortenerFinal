@@ -3,6 +3,7 @@ using System.Text;
 using Azure.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
@@ -18,15 +19,18 @@ namespace UrlShortener.MVC.Controllers
         private readonly IUserStore<UrlShortenerUser> _userStore;
         private readonly IUserEmailStore<UrlShortenerUser> _emailStore;
         //private readonly ILogger<LoginModel> _logger;
+        private readonly IEmailSender _emailSender;
 
         public AuthenticationController(SignInManager<UrlShortenerUser> signInManager,
             UserManager<UrlShortenerUser> userManager,
-            IUserStore<UrlShortenerUser> userStore)
+            IUserStore<UrlShortenerUser> userStore,
+            IEmailSender emailSender)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
+            _emailSender = emailSender;
         }
         public IActionResult Index()
         {
@@ -224,14 +228,16 @@ namespace UrlShortener.MVC.Controllers
 
         // GET: Callback from external provider (based on OnGetCallbackAsync)
         [HttpGet]
-        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl, string? remoteError)
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
         {
             returnUrl ??= Url.Content("~/");
+
             if (remoteError != null)
             {
                 TempData["ErrorMessage"] = $"Error from external provider: {remoteError}";
                 return RedirectToAction(nameof(Login), new { returnUrl });
             }
+
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
@@ -239,11 +245,10 @@ namespace UrlShortener.MVC.Controllers
                 return RedirectToAction(nameof(Login), new { returnUrl });
             }
 
-            // Sign in the user with this external login provider if the user already has a login.
+            // Try sign-in with the external login info
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
-                //_logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
                 return LocalRedirect(returnUrl);
             }
             if (result.IsLockedOut)
@@ -251,18 +256,47 @@ namespace UrlShortener.MVC.Controllers
                 TempData["ErrorMessage"] = "User account locked out.";
                 return RedirectToAction(nameof(Login));
             }
-            else
+
+            // No local account linked to this external login -> attempt auto-provision
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email))
             {
-                // If the user does not have an account, redirect to Register and prefill the email if we have one.
-                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-                if (!string.IsNullOrEmpty(email))
-                {
-                    TempData["ExternalEmail"] = email;
-                }
-                TempData["ProviderDisplayName"] = info.ProviderDisplayName;
-                // In a complete flow you'd show a confirmation page to create the local account and link the external login.
-                return RedirectToAction(nameof(Register), new { returnUrl });
+                TempData["ErrorMessage"] = "External provider did not supply an email address.";
+                return RedirectToAction(nameof(Login), new { returnUrl });
             }
+
+            // Check if a user already exists with this email
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                // Create a new local user (no password)
+                user = CreateUser();
+                await _userStore.SetUserNameAsync(user, email, CancellationToken.None);
+                await _emailStore.SetEmailAsync(user, email, CancellationToken.None);
+
+                var createResult = await _userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                {
+                    TempData["ErrorMessage"] = "Failed to create local user account.";
+                    return RedirectToAction(nameof(Login), new { returnUrl });
+                }
+            }
+
+            // Link the external login to the local user
+            var addLoginResult = await _userManager.AddLoginAsync(user, info);
+            if (!addLoginResult.Succeeded)
+            {
+                TempData["ErrorMessage"] = "Failed to link external login to local account.";
+                return RedirectToAction(nameof(Login), new { returnUrl });
+            }
+
+            // Optionally mark email as confirmed when provisioning from a trusted provider
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user);
+
+            // Sign in the user
+            await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+            return LocalRedirect(returnUrl);
         }
 
         private UrlShortenerUser CreateUser()
