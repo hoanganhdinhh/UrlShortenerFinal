@@ -16,6 +16,7 @@
             Tip: If you don't see it in your Inbox, please also check the <b>Spam/Junk</b> folder.
         </div>
         <form asp-action="RegisterConfirmation" method="post">
+            @Html.AntiForgeryToken()
             <input asp-for="ReturnUrl" type="hidden" />
             <input asp-for="Email" type="hidden" />
             <input asp-for="UserId" type="hidden" />

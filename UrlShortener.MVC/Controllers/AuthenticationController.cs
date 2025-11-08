@@ -142,7 +142,7 @@ namespace UrlShortener.MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> RegisterConfirmation(string? email, string? returnUrl)
+        public async Task<IActionResult> RegisterConfirmation(string email, string returnUrl)
         {
             if (string.IsNullOrWhiteSpace(email)) return RedirectToAction(nameof(Login));
 
@@ -160,7 +160,9 @@ namespace UrlShortener.MVC.Controllers
                 Email = email,
                 ReturnUrl = returnUrl,
                 EmailConfirmationUrl = confirmUrl,      // dùng trong View nếu muốn show link
-                DisplayConfirmAccountLink = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+                DisplayConfirmAccountLink = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development",
+                UserId = user.Id,
+                Code = codeEncoded
             };
             return View(vm);
         }
