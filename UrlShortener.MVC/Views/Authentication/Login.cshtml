@@ -1,4 +1,247 @@
 ﻿@model UrlShortener.MVC.Models.Identities.LoginVM
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="container py-3">
+    <a asp-controller="Home" asp-action="Index" class="text-decoration-none d-inline-flex align-items-center gap-2 mb-3">
+        <span class="fs-5">←</span> Back to Home
+    </a>
+</div>
+
+<div class="auth-bg">
+    <div class="container d-flex justify-content-center">
+        <div class="auth-card">
+            <h1 class="auth-title">Welcome back</h1>
+            <p class="auth-subtitle">Log in to continue managing your short URLs</p>
+
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                <form id="external-account"
+                      asp-controller="Authentication"
+                      asp-action="ExternalLogin"
+                      asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post" class="w-100">
+                    @foreach (var provider in Model.ExternalLogins!)
+                    {
+                        var icon = provider.Name.ToLower() switch
+                        {
+                            "google" => "google",
+                            "microsoft" => "microsoft",
+                            "facebook" => "facebook",
+                            _ => "default"
+                        };
+                        <button type="submit" class="btn oauth-btn w-100 mb-3"
+                                name="provider" value="@provider.Name"
+                                title="Continue with @provider.DisplayName">
+                            @Html.Raw(GetSvg(icon))
+                            <span>Continue with @provider.DisplayName</span>
+                        </button>
+                    }
+                </form>
+            }
+
+            <div class="separator"><span>OR</span></div>
+
+            <form id="account" method="post" class="w-100" novalidate>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-2" role="alert"></div>
+
+                <div class="mb-3 text-start">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" type="email" inputmode="email"
+                           class="form-control form-control-lg"
+                           placeholder="you@example.com" autocomplete="username" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-2 text-start">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" type="password"
+                           class="form-control form-control-lg"
+                           placeholder="••••••••" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="RememberMe" id="rememberMeChk" />
+                        <label class="form-check-label" asp-for="RememberMe">@Html.DisplayNameFor(m => m.RememberMe)</label>
+                    </div>
+                    <a asp-controller="Authentication" asp-action="ForgotPassword" class="small">Forgot your password?</a>
+                </div>
+
+                <button id="login-submit" type="submit" class="btn btn-primary btn-lg w-100 auth-primary">Log in</button>
+
+                <p class="text-center mt-3 mb-0">
+                    Don’t have an account?
+                    <a asp-controller="Authentication" asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl">Create one</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+@functions {
+    private string GetSvg(string name) => name switch
+    {
+        "google" => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 48 48'>
+            <path fill='#EA4335' d='M24 9.5c3.94 0 7.49 1.38 10.28 4.08l6.91-6.91C36.9 2.2 30.88 0 24 0 14.62 0 6.51 5.38 2.56 13.23l8.6 6.67C13.24 14.45 18.17 9.5 24 9.5z'/>
+            <path fill='#4285F4' d='M46.5 24c0-1.64-.15-3.21-.44-4.72H24v9h12.6c-.54 2.92-2.2 5.39-4.69 7.05l7.14 5.55C43.41 37.39 46.5 31.22 46.5 24z'/>
+            <path fill='#FBBC05' d='M11.16 20.1l-8.6-6.67C.89 16.12 0 19.94 0 24c0 3.99.88 7.77 2.46 11.14l8.7-6.76C10.41 26.41 10 25.25 10 24c0-1.36.44-2.63 1.16-3.9z'/>
+            <path fill='#34A853' d='M24 48c6.48 0 11.93-2.13 15.9-5.81l-7.14-5.55c-2 1.35-4.57 2.16-8.76 2.16-5.83 0-10.76-4.95-12.84-11.7l-8.7 6.76C6.51 42.62 14.62 48 24 48z'/>
+        </svg>",
+        "microsoft" => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 23 23'>
+            <rect width='10' height='10' x='0' y='0' fill='#F35325'/><rect width='10' height='10' x='13' y='0' fill='#81BC06'/>
+            <rect width='10' height='10' x='0' y='13' fill='#05A6F0'/><rect width='10' height='10' x='13' y='13' fill='#FFBA08'/>
+        </svg>",
+        "facebook" => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 24 24' fill='currentColor'>
+            <path d='M22 12.07C22 6.48 17.52 2 11.93 2 6.35 2 1.86 6.48 1.86 12.07c0 5 3.66 9.14 8.44 9.93v-7.03H7.9v-2.9h2.4V9.85c0-2.37 1.41-3.69 3.56-3.69 1.03 0 2.11.18 2.11.18v2.32h-1.19c-1.17 0-1.54.73-1.54 1.48v1.77h2.62l-.42 2.9h-2.2V22c4.78-.79 8.44-4.93 8.44-9.93z'/>
+        </svg>",
+        _ => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='currentColor'/></svg>"
+    };
+}
+
+<script>
+    document.querySelectorAll(".toggle-password").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const input = document.querySelector(`[name="${btn.dataset.target}"]`);
+            input.type = input.type === "password" ? "text" : "password";
+            btn.textContent = input.type === "password" ? "👁" : "🙈";
+        });
+    });
+</script>
+
+<style>
+    /* Background gradient + subtle grid */
+    .auth-bg {
+        min-height: calc(100vh - 56px);
+        padding: 24px 16px 64px;
+        background: radial-gradient(800px 400px at 20% 40%, rgba(92, 138, 248, .12), transparent 40%), radial-gradient(700px 360px at 80% 60%, rgba(185, 113, 255, .12), transparent 40%), linear-gradient(180deg, #ffffff, #f9f6ff);
+    }
+
+    /* Card */
+    .auth-card {
+        width: 100%;
+        max-width: 680px;
+        margin: 24px auto 0;
+        background: #fff;
+        border-radius: 24px;
+        padding: 32px 40px 28px;
+        box-shadow: 0 10px 30px rgba(60, 64, 67, .08), 0 2px 8px rgba(60, 64, 67, .06);
+        border: 1px solid rgba(99, 102, 241, .15);
+        text-align: center;
+    }
+
+    /* Headings */
+    .auth-title {
+        font-weight: 700;
+        font-size: 34px;
+        margin-bottom: 6px;
+        background: linear-gradient(90deg, #6d28d9, #4f46e5);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .auth-subtitle {
+        color: #6b7280;
+        margin-bottom: 18px;
+    }
+
+    /* OAuth buttons */
+    .oauth-btn {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        color: #111827;
+        padding: 10px 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border-radius: 12px;
+        transition: transform .06s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+        .oauth-btn svg {
+            display: inline-block;
+        }
+
+        .oauth-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(79, 70, 229, .12);
+            border-color: #9aa3af;
+        }
+
+    /* Separator */
+    .separator {
+        position: relative;
+        text-align: center;
+        margin: 14px 0 20px;
+    }
+
+        .separator::before,
+        .separator::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 36%;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .separator::before {
+            left: 0;
+        }
+
+        .separator::after {
+            right: 0;
+        }
+
+        .separator span {
+            display: inline-block;
+            padding: 0 10px;
+            color: #9ca3af;
+            font-weight: 600;
+            letter-spacing: .08em;
+        }
+
+    /* Inputs */
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .form-control-lg {
+        border-radius: 12px;
+        padding: 12px 14px;
+        border: 1px solid #d1d5db;
+    }
+
+        .form-control-lg:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 .2rem rgba(99, 102, 241, .15);
+        }
+
+    /* Primary button */
+    .auth-primary {
+        background: linear-gradient(90deg, #2563eb, #7c3aed);
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 10px 24px rgba(99, 102, 241, .25);
+    }
+
+        .auth-primary:hover {
+            filter: brightness(1.05);
+            box-shadow: 0 12px 28px rgba(99, 102, 241, .3);
+        }
+</style>
+
+
+@* @model UrlShortener.MVC.Models.Identities.LoginVM
 
 @{
     ViewData["Title"] = "Log in";
@@ -91,4 +334,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-}
+} *@

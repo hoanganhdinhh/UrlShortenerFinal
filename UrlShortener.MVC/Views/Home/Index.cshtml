@@ -1,8 +1,160 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero-wrap">
+    <div class="container py-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h1 class="display-3 fw-bold lh-tight hero-title">
+                    Shorten Your URLs in <span class="text-gradient">Seconds</span>
+                </h1>
+
+                <p class="lead text-secondary mt-4">
+                    Create clean, memorable short links that are perfect for sharing on
+                    social media, emails, and anywhere else. Track clicks and manage all
+                    your links in one place.
+                </p>
+
+                <div class="mt-4">
+                    <div class="input-group input-group-lg hero-input">
+                        <input type="url" class="form-control form-control-lg"
+                               placeholder="Enter your long URL here..." aria-label="Long URL">
+                        <!-- NÚT SHORTEN: điều hướng tới trang đăng nhập -->
+                        <!-- Nếu bạn dùng Identity (mặc định ASP.NET Core) -->
+                        <a class="btn btn-primary btn-lg px-4"
+                           asp-area="Identity" asp-page="/Account/Login">Shorten</a>
+                        <!-- Hoặc nếu bạn dùng AccountController -->
+                        @* <a class="btn btn-primary btn-lg px-4" asp-controller="Account" asp-action="Login">Shorten</a> *@
+                    </div>
+
+                    <a class="btn btn-cta mt-4" asp-area="Identity" asp-page="/Account/Register">Get Started Free</a>
+                    @* Hoặc: <a class="btn btn-cta mt-4" asp-controller="Account" asp-action="Register">Get Started Free</a> *@
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="hero-image shadow-lg rounded-4">
+                    <img src="~/img/hero-earth.jpg" class="img-fluid rounded-4" alt="Earth from space">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-wrap py-5">
+    <div class="container">
+        <h2 class="display-6 fw-bold text-center mb-2 text-gradient">Powerful Features for Modern Teams</h2>
+        <p class="text-center text-secondary mb-5 fs-5">
+            Everything you need to create, manage, and track your short URLs effectively
+        </p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">⚡</div>
+                        <h5 class="card-title">Lightning Fast</h5>
+                        <p class="card-text">Generate short URLs instantly with our optimized infrastructure.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">📊</div>
+                        <h5 class="card-title">Detailed Analytics</h5>
+                        <p class="card-text">Track clicks, locations, devices, and more with comprehensive analytics.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">🛡️</div>
+                        <h5 class="card-title">Secure &amp; Reliable</h5>
+                        <p class="card-text">Your links are protected with SSL encryption and 99.9% uptime.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">🔳</div>
+                        <h5 class="card-title">QR Codes</h5>
+                        <p class="card-text">Automatically generate QR codes for all your shortened URLs.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">🌐</div>
+                        <h5 class="card-title">Custom Domains</h5>
+                        <p class="card-text">Use your own branded domain for professional short links.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">👥</div>
+                        <h5 class="card-title">Team Collaboration</h5>
+                        <p class="card-text">Share and manage links with your team members effortlessly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="py-5 border-top">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="logo-dot"></div>
+                    <span class="fs-4 fw-semibold">ShortURL</span>
+                </div>
+                <p class="text-secondary mt-3 mb-0">
+                    The fastest and most reliable URL shortener for modern teams.
+                </p>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <h6 class="fw-bold mb-3">Product</h6>
+                <ul class="list-unstyled m-0">
+                    <li><a href="#" class="link-secondary">Features</a></li>
+                    <li><a href="#" class="link-secondary">Pricing</a></li>
+                    <li><a href="#" class="link-secondary">API</a></li>
+                    <li><a href="#" class="link-secondary">Integrations</a></li>
+                </ul>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <h6 class="fw-bold mb-3">Company</h6>
+                <ul class="list-unstyled m-0">
+                    <li><a href="#" class="link-secondary">About</a></li>
+                    <li><a href="#" class="link-secondary">Blog</a></li>
+                    <li><a href="#" class="link-secondary">Careers</a></li>
+                    <li><a href="#" class="link-secondary">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <h6 class="fw-bold mb-3">Legal</h6>
+                <ul class="list-unstyled m-0">
+                    <li><a href="#" class="link-secondary">Privacy</a></li>
+                    <li><a href="#" class="link-secondary">Terms</a></li>
+                    <li><a href="#" class="link-secondary">Security</a></li>
+                    <li><a href="#" class="link-secondary">Cookies</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>

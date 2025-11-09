@@ -20,3 +20,82 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+/* HERO */
+.hero-wrap {
+    background: radial-gradient(1200px 400px at 80% -50%, rgba(99,102,241,.15), transparent 70%), radial-gradient(900px 300px at -5% 20%, rgba(168,85,247,.12), transparent 60%), #ffffff;
+}
+
+.hero-title {
+    letter-spacing: -.5px;
+}
+
+.text-gradient {
+    background: linear-gradient(90deg,#3b82f6,#7c3aed);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero-input .form-control {
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+    padding-left: 1rem;
+    height: 56px;
+}
+
+.hero-input .btn {
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    height: 56px;
+}
+
+.btn-cta {
+    display: inline-block;
+    background: linear-gradient(90deg,#3b82f6,#7c3aed);
+    color: #fff !important;
+    padding: .8rem 1.25rem;
+    border-radius: .9rem;
+    font-weight: 600;
+    box-shadow: 0 10px 24px rgba(124,58,237,.25);
+}
+
+/* FEATURE GRID */
+.features-wrap {
+    background: linear-gradient(180deg,#f8fafc, #ffffff 40%);
+}
+
+.feature-card {
+    border: none;
+    border-radius: 1.25rem;
+    background: #fff;
+    box-shadow: 0 8px 30px rgba(2,6,23,.06);
+    padding: .25rem;
+}
+
+    .feature-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .feature-card .feature-icon {
+        font-size: 1.6rem;
+        line-height: 1;
+        display: inline-grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        margin-bottom: .75rem;
+        background: linear-gradient(135deg,#6366f1,#a855f7);
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(79,70,229,.25);
+    }
+
+/* LOGO DOT IN FOOTER */
+.logo-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg,#6366f1,#a855f7);
+}
