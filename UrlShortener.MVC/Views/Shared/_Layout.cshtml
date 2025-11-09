@@ -29,17 +29,57 @@
             </a>
 
             <!-- Actions -->
+            @{
+                var isAuth = User?.Identity?.IsAuthenticated ?? false;
+                string displayName = User?.Identity?.Name ?? "User";
+                string initials = new string(displayName
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => char.ToUpperInvariant(s[0])).Take(2).ToArray());
+}
             <div class="d-flex align-items-center gap-3">
-                <a class="link-dark fw-semibold small d-none d-sm-inline" asp-area="" asp-controller="Authentication" asp-action="Login">
-                    Log In
-                </a>
-                <a class="btn btn-gradient px-3 py-2 rounded-4 fw-semibold"
-                   asp-area="" asp-controller="Authentication" asp-action="Register">
-                    Sign Up
-                </a>
+                @if (!isAuth)
+                {
+                    <div class="d-flex align-items-center gap-3">
+                        <a class="link-dark fw-semibold small d-none d-sm-inline" asp-area="" asp-controller="Authentication" asp-action="Login">
+                            Log In
+                        </a>
+                        <a class="btn btn-gradient px-3 py-2 rounded-4 fw-semibold"
+                           asp-area="" asp-controller="Authentication" asp-action="Register">
+                            Sign Up
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <a class="btn btn-gradient px-3 py-2 rounded-4 fw-semibold"
+                        asp-area="" asp-controller="Urls" asp-action="Create">
+                        Create New Url
+                    </a>
+
+                    <div class="dropdown">
+                        <button class="avatar-btn d-inline-flex align-items-center justify-content-center"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @initials
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li class="dropdown-header small text-muted px-3">Hello, @displayName</li>
+                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index">Profile</a></li>
+                            <li><a class="dropdown-item" asp-controller="Links" asp-action="Index">My Links</a></li>
+                            <li><a class="dropdown-item" asp-controller="Settings" asp-action="Index">Settings</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-area="" asp-controller="Authentication" asp-action="Logout" method="post" class="px-3 py-1">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary w-100">Log out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                }
             </div>
         </nav>
     </header>
+
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -108,5 +148,29 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
+    <div id="authToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                @TempData["AuthMessage"]
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var hasMsg = '@(TempData["AuthMessage"] != null)'.toLowerCase() === 'true';
+        if (hasMsg) {
+            var el = document.getElementById('authToast');
+            var toast = new bootstrap.Toast(el, { delay: 3000 });
+            toast.show();
+        }
+    })();
+</script>
+
 </body>
 </html>

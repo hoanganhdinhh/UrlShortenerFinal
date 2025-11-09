@@ -23,12 +23,12 @@
                         <!-- NÚT SHORTEN: điều hướng tới trang đăng nhập -->
                         <!-- Nếu bạn dùng Identity (mặc định ASP.NET Core) -->
                         <a class="btn btn-primary btn-lg px-4"
-                           asp-area="Identity" asp-page="/Authentication/Login">Shorten</a>
+                           asp-area="" asp-controller="Authentication" asp-action="Login">Shorten</a>
                         <!-- Hoặc nếu bạn dùng AccountController -->
                         @* <a class="btn btn-primary btn-lg px-4" asp-controller="Account" asp-action="Login">Shorten</a> *@
                     </div>
 
-                    <a class="btn btn-cta mt-4" asp-area="Identity" asp-page="/Account/Register">Get Started Free</a>
+                    <a class="btn btn-cta mt-4" asp-area="" asp-controller="Authentication" asp-action="Login">Get Started Free</a>
                     @* Hoặc: <a class="btn btn-cta mt-4" asp-controller="Account" asp-action="Register">Get Started Free</a> *@
                 </div>
             </div>
