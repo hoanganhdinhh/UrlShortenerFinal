@@ -3,6 +3,106 @@
     ViewData["Title"] = "Verify Email";
 }
 
+<div class="container py-5" style="max-width:480px; text-align:center;">
+    <a href="/Authentication/Register" class="text-muted mb-3 d-block">← Back to Sign Up</a>
+    <div class="mb-4">
+        <img src="/images/verify-icon.svg" alt="Verify Icon" style="width:64px; height:64px;" />
+    </div>
+    <h3 class="mb-3" style="color:#6c63ff;">Verify Your Email</h3>
+    <p class="text-muted">We've sent a 6-digit code to <b>@Model.Email</b>. It expires in 10 minutes.</p>
+
+    <!-- Display global errors -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <form asp-action="VerifyOtp" method="post" class="mt-3" onsubmit="combineOtpInputs()">
+        <input type="hidden" asp-for="Email" />
+        <input type="hidden" asp-for="Purpose" />
+        <input type="hidden" asp-for="ReturnUrl" />
+        <input type="hidden" id="Otp" name="Otp" />
+
+        <div class="mb-3 d-flex justify-content-center gap-2">
+            @for (int i = 0; i < 6; i++)
+            {
+                <input type="text" maxlength="1" class="form-control text-center otp-input"
+                       style="width:50px; height:50px; font-size:24px;"
+                       oninput="moveToNext(this, @i)" />
+            }
+        </div>
+        <span asp-validation-for="Otp" class="text-danger"></span>
+
+        <button type="submit" class="btn btn-primary w-100 mt-3" style="background-color:#6c63ff; border:none;">Verify Email</button>
+    </form>
+
+    <form asp-action="ResendOtp" method="post" class="mt-3">
+        <input type="hidden" name="email" value="@Model.Email" />
+        <input type="hidden" name="purpose" value="@Model.Purpose" />
+        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+        <button class="btn btn-link p-0 text-muted">Resend code in <span id="resend-timer">60s</span></button>
+    </form>
+
+    <p class="text-muted mt-3">Didn't receive the email? Check your spam folder or try resending.</p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        let timer = 60;
+        const timerElement = document.getElementById('resend-timer');
+        const interval = setInterval(() => {
+            timer--;
+            timerElement.textContent = `${timer}s`;
+            if (timer <= 0) {
+                clearInterval(interval);
+                timerElement.textContent = 'now';
+            }
+        }, 1000);
+
+        function moveToNext(currentInput, index) {
+            const inputs = document.querySelectorAll('.otp-input');
+            if (currentInput.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            } else if (currentInput.value.length === 0 && index > 0) {
+                inputs[index - 1].focus();
+            }
+        }
+
+        document.querySelectorAll('.otp-input').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (!/^\d$/.test(e.key) && e.key !== 'Backspace' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+                    e.preventDefault();
+                }
+                if (e.key === 'Enter') {
+                    const otpInputs = document.querySelectorAll('.otp-input');
+                    const allFilled = Array.from(otpInputs).every(input => input.value.length === 1);
+                    if (allFilled) {
+                        combineOtpInputs();
+                        document.querySelector('form[asp-action="VerifyOtp"]').submit();
+                    }
+                }
+            });
+        });
+
+        function combineOtpInputs() {
+            const inputs = document.querySelectorAll('.otp-input');
+            const otpValue = Array.from(inputs).map(input => input.value).join('');
+            document.getElementById('Otp').value = otpValue;
+        }
+    </script>
+}
+
+@* @model UrlShortener.MVC.Models.Identities.VerifyOtpVM
+@{
+    ViewData["Title"] = "Verify Email";
+}
+
 <div class="container py-5" style="max-width:480px">
     <h3 class="mb-3">Enter verification code</h3>
     <p class="text-muted">We sent a 6-digit code to <b>@Model.Email</b>. It expires in 10 minutes.</p>
@@ -42,4 +142,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-}
+} *@
