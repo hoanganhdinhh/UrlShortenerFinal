@@ -4,12 +4,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UrlShortener.MVC.Data;
 using UrlShortener.MVC.Data.Entities.Identities;
+using UrlShortener.Services.Otp;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
 builder.Services.AddMailjet(builder.Configuration);
+
+builder.Services.AddOtpService(builder.Configuration);
 
 builder.Services.AddControllersWithViews();
 
@@ -57,7 +60,6 @@ builder.Services.AddAuthentication()
     {
         msOpts.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
         msOpts.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
-        // Callback m?c ??nh: /signin-microsoft (ph?i trùng v?i Azure portal)
         msOpts.SaveTokens = true;
     });
 

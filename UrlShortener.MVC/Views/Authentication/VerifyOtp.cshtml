@@ -1,0 +1,45 @@
+﻿@model UrlShortener.MVC.Models.Identities.VerifyOtpVM
+@{
+    ViewData["Title"] = "Verify Email";
+}
+
+<div class="container py-5" style="max-width:480px">
+    <h3 class="mb-3">Enter verification code</h3>
+    <p class="text-muted">We sent a 6-digit code to <b>@Model.Email</b>. It expires in 10 minutes.</p>
+
+    <!-- ✅ HIỂN THỊ LỖI TOÀN CỤC -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <form asp-action="VerifyOtp" method="post" class="mt-3">
+        <input type="hidden" asp-for="Email" />
+        <input type="hidden" asp-for="Purpose" />
+        <input type="hidden" asp-for="ReturnUrl" />
+
+        <div class="mb-3">
+            <label asp-for="Otp" class="form-label">OTP</label>
+            <input asp-for="Otp" class="form-control" placeholder="123456" autocomplete="one-time-code" />
+            <span asp-validation-for="Otp" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Verify</button>
+    </form>
+
+    <form asp-action="ResendOtp" method="post" class="mt-3">
+        <input type="hidden" name="email" value="@Model.Email" />
+        <input type="hidden" name="purpose" value="@Model.Purpose" />
+        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+        <button class="btn btn-link p-0">Resend code</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

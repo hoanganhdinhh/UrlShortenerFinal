@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +9,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using UrlShortener.MVC.Data.Entities.Identities;
 using UrlShortener.MVC.Models.Identities;
+using UrlShortener.Services.Otp;
 
 namespace UrlShortener.MVC.Controllers
 {
@@ -21,17 +21,20 @@ namespace UrlShortener.MVC.Controllers
         private readonly IUserEmailStore<UrlShortenerUser> _emailStore;
         //private readonly ILogger<LoginModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IOtpService _otpService;
 
         public AuthenticationController(SignInManager<UrlShortenerUser> signInManager,
             UserManager<UrlShortenerUser> userManager,
             IUserStore<UrlShortenerUser> userStore,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IOtpService otpService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _emailSender = emailSender;
+            _otpService = otpService;
         }
         public IActionResult Index()
         {
@@ -124,22 +127,53 @@ namespace UrlShortener.MVC.Controllers
                 return View(model);
             }
 
-            // Tạo token + link xác nhận
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var codeEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var callbackUrl = Url.Action(
-                action: "ConfirmEmail",
-                controller: "Authentication",
-                values: new { userId = user.Id, code = codeEncoded, returnUrl },
-                protocol: Request.Scheme)!;
+            // === Dùng OTP để xác nhận email ===
+            const string purpose = "confirm-email";
+            var otp = await _otpService.GenerateAndReturnCodeAsync(model.Email, purpose);
 
-            // Gửi mail
-            await _emailSender.SendEmailAsync(model.Email, "Confirm your email",
-                $"Thank you for registering an account with us. We are excited to have you on board.<br><br>To complete your registration, please confirm your email address by clicking the link below: <br><br><a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Click Here</a><br><br>If you did not request this account, please disregard this email.<br><br>Best regards");
+            await _emailSender.SendEmailAsync(
+                model.Email,
+                "Your verification code",
+                $@"<p>Thanks for registering!</p>
+           <p>Your verification code is:</p>
+           <h2 style='letter-spacing:4px'>{otp}</h2>
+           <p>This code expires in 10 minutes.</p>");
 
-            // Chuyển tới trang thông báo
-            return RedirectToAction(nameof(RegisterConfirmation), new { email = model.Email, returnUrl });
+            // Điều hướng sang trang nhập OTP
+            return RedirectToAction(nameof(VerifyOtp), new { email = model.Email, returnUrl });
         }
+
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Register(RegisterVM model, string? returnUrl = null)
+        //{
+        //    if (!ModelState.IsValid) return View(model);
+
+        //    var user = new UrlShortenerUser { UserName = model.Email, Email = model.Email };
+        //    var result = await _userManager.CreateAsync(user, model.Password);
+        //    if (!result.Succeeded)
+        //    {
+        //        foreach (var e in result.Errors) ModelState.AddModelError(string.Empty, e.Description);
+        //        return View(model);
+        //    }
+
+        //    // Tạo token + link xác nhận
+        //    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        //    var codeEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        //    var callbackUrl = Url.Action(
+        //        action: "ConfirmEmail",
+        //        controller: "Authentication",
+        //        values: new { userId = user.Id, code = codeEncoded, returnUrl },
+        //        protocol: Request.Scheme)!;
+
+        //    // Gửi mail
+        //    await _emailSender.SendEmailAsync(model.Email, "Confirm your email",
+        //        $"Thank you for registering an account with us. We are excited to have you on board.<br><br>To complete your registration, please confirm your email address by clicking the link below: <br><br><a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Click Here</a><br><br>If you did not request this account, please disregard this email.<br><br>Best regards");
+
+        //    // Chuyển tới trang thông báo
+        //    return RedirectToAction(nameof(RegisterConfirmation), new { email = model.Email, returnUrl });
+        //}
 
         [HttpGet]
         public async Task<IActionResult> RegisterConfirmation(string email, string returnUrl)
@@ -217,6 +251,69 @@ namespace UrlShortener.MVC.Controllers
             TempData["StatusMessage"] = "Có lỗi khi xác nhận email.";
             return RedirectToAction(nameof(Login));
         }
+
+        [HttpGet]
+        public IActionResult VerifyOtp(string email, string? returnUrl = null)
+        {
+            var vm = new VerifyOtpVM
+            {
+                Email = email,
+                Purpose = "confirm-email",
+                ReturnUrl = string.IsNullOrWhiteSpace(returnUrl) ? Url.Content("~/") : returnUrl
+            };
+            return View(vm); // Views/Authentication/VerifyOtp.cshtml
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpVM vm)
+        {
+            if (!ModelState.IsValid) return View(vm);
+
+            if (!_otpService.Verify(vm.Email, vm.Purpose, vm.Otp))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid or expired code. Please try again.");
+                return View(vm);
+            }
+
+            // OTP OK -> Confirm email trong Identity
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null) return NotFound();
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+            {
+                // (tuỳ chọn) đăng nhập luôn:
+                // await _signInManager.SignInAsync(user, isPersistent:false);
+                return LocalRedirect(vm.ReturnUrl);
+            }
+
+            foreach (var e in result.Errors) ModelState.AddModelError("", e.Description);
+            return View(vm);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendOtp(string email, string purpose = "confirm-email", string? returnUrl = null)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return RedirectToAction(nameof(Login));
+
+            if (!_otpService.CanResend(email, purpose))
+            {
+                TempData["ErrorMessage"] = "Please wait before requesting another code.";
+                return RedirectToAction(nameof(VerifyOtp), new { email, returnUrl });
+            }
+
+            var otp = await _otpService.GenerateAndReturnCodeAsync(email, purpose);
+            await _emailSender.SendEmailAsync(email, "Your verification code",
+                $"Your new code is <b>{otp}</b>. It expires in 10 minutes.");
+
+            TempData["Resent"] = true;
+            return RedirectToAction(nameof(VerifyOtp), new { email, returnUrl });
+        }
+
 
         //// Gửi lại email xác nhận
         //[HttpGet]
