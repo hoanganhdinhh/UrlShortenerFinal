@@ -1,4 +1,4 @@
-html {
+﻿html {
   font-size: 14px;
 }
 
@@ -98,4 +98,50 @@ body {
     height: 32px;
     border-radius: 9px;
     background: linear-gradient(135deg,#6366f1,#a855f7);
+}
+
+
+
+/*Layout*/
+/* ===== Header ===== */
+.elevated-bar {
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(0,0,0,.06);
+}
+
+.logo-pill {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: radial-gradient(120% 120% at 10% 10%, #F1F5FF 0%, #F7F2FF 100%);
+    box-shadow: 0 6px 18px rgba(0,0,0,.08) inset;
+}
+
+.brand-gradient {
+    background: linear-gradient(90deg, #2F6BFF 0%, #8A2EFF 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Gradient button */
+.btn-gradient {
+    background: linear-gradient(90deg, #2F6BFF 0%, #8A2EFF 100%);
+    color: #fff;
+    border: 0;
+    box-shadow: 0 10px 22px rgba(65, 87, 255, .25);
+}
+
+    .btn-gradient:hover {
+        opacity: .92;
+        color: #fff;
+    }
+
+/* ===== Footer ===== */
+.site-footer .social-link {
+    opacity: .85;
+}
+
+.site-footer .social-link:hover {
+    opacity: 1;
 }
