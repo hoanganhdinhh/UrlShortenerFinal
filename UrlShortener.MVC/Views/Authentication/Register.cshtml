@@ -17,6 +17,51 @@
             <h1 class="auth-title">Create Account</h1>
             <p class="auth-subtitle">Sign up to start creating and managing your short URLs</p>
 
+            <!-- Local register -->
+            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" novalidate class="w-100">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-2" role="alert"></div>
+
+                <div class="mb-3 text-start">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" type="email" inputmode="email"
+                           class="form-control form-control-lg"
+                           placeholder="you@example.com" autocomplete="username" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3 text-start">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <div class="position-relative">
+                        <input asp-for="Password" type="password" class="form-control form-control-lg password-input"
+                               placeholder="••••••••" autocomplete="new-password" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4 text-start">
+                    <label asp-for="ConfirmPassword" class="form-label ">Confirm Password</label>
+                    <div class="position-relative">
+                        <input asp-for="ConfirmPassword" type="password" class="form-control form-control-lg password-input"
+                               placeholder="••••••••" autocomplete="new-password" />
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg w-100 auth-primary">
+                    Sign Up
+                </button>
+
+                <p class="text-center mt-3 mb-0">
+                    Already have an account?
+                    <a asp-controller="Authentication" asp-action="Login">Log in</a>
+                </p>
+            </form>
+            
+
+            <div class="separator">
+                <span>OR</span>
+            </div>
+
             <!-- External providers -->
             @if ((Model.ExternalLogins?.Count ?? 0) > 0)
             {
@@ -52,51 +97,6 @@
                     <a href="https://go.microsoft.com/fwlink/?LinkID=532715" target="_blank" rel="noopener">setup guide</a>.
                 </div>
             }
-
-            <div class="separator">
-                <span>OR</span>
-            </div>
-
-            <!-- Local register -->
-            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" novalidate class="w-100">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-2" role="alert"></div>
-
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label">Email</label>
-                    <input asp-for="Email" type="email" inputmode="email" class="form-control form-control-lg"
-                           placeholder="you@example.com" autocomplete="email" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label">Password</label>
-                    <div class="position-relative">
-                        <input asp-for="Password" type="password" class="form-control form-control-lg password-input"
-                               placeholder="••••••••" autocomplete="new-password" />
-                        <button type="button" class="toggle-password" data-target="Password">👁</button>
-                    </div>
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-
-                <div class="mb-4">
-                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
-                    <div class="position-relative">
-                        <input asp-for="ConfirmPassword" type="password" class="form-control form-control-lg password-input"
-                               placeholder="••••••••" autocomplete="new-password" />
-                        <button type="button" class="toggle-password" data-target="ConfirmPassword">👁</button>
-                    </div>
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                </div>
-
-                <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg w-100 auth-primary">
-                    Sign Up
-                </button>
-
-                <p class="text-center mt-3 mb-0">
-                    Already have an account?
-                    <a asp-controller="Authentication" asp-action="Login">Log in</a>
-                </p>
-            </form>
         </div>
     </div>
 </div>
@@ -119,24 +119,12 @@
             <rect width='10' height='10' x='0' y='0' fill='#F35325'/><rect width='10' height='10' x='13' y='0' fill='#81BC06'/>
             <rect width='10' height='10' x='0' y='13' fill='#05A6F0'/><rect width='10' height='10' x='13' y='13' fill='#FFBA08'/>
         </svg>",
-        "facebook" => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 24 24' fill='currentColor'>
+        "facebook" => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 22 22' fill='blue'>
             <path d='M22 12.07C22 6.48 17.52 2 11.93 2 6.35 2 1.86 6.48 1.86 12.07c0 5 3.66 9.14 8.44 9.93v-7.03H7.9v-2.9h2.4V9.85c0-2.37 1.41-3.69 3.56-3.69 1.03 0 2.11.18 2.11.18v2.32h-1.19c-1.17 0-1.54.73-1.54 1.48v1.77h2.62l-.42 2.9h-2.2V22c4.78-.79 8.44-4.93 8.44-9.93z'/>
         </svg>",
         _ => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='currentColor'/></svg>"
     };
 }
-
-
-
-<script>
-    document.querySelectorAll(".toggle-password").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const input = document.querySelector(`[name="${btn.dataset.target}"]`);
-            input.type = input.type === "password" ? "text" : "password";
-            btn.textContent = input.type === "password" ? "👁" : "🙈";
-        });
-    });
-</script>
 
 <style>
     /* Background gradient + subtle grid */

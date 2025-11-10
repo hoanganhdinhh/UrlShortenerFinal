@@ -195,7 +195,6 @@ namespace UrlShortener.MVC.Controllers
             {
                 Email = email,
                 ReturnUrl = returnUrl,
-                EmailConfirmationUrl = confirmUrl,      // dùng trong View nếu muốn show link
                 DisplayConfirmAccountLink = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development",
                 UserId = user.Id,
                 Code = codeEncoded
@@ -257,28 +256,28 @@ namespace UrlShortener.MVC.Controllers
         [HttpGet]
         public IActionResult VerifyOtp(string email, string? returnUrl = null)
         {
-            var vm = new VerifyOtpVM
+            var verifyotpvm = new VerifyOtpVM
             {
                 Email = email,
                 Purpose = "confirm-email",
                 ReturnUrl = string.IsNullOrWhiteSpace(returnUrl) ? Url.Content("~/") : returnUrl
             };
-            return View(vm); // Views/Authentication/VerifyOtp.cshtml
+            return View(verifyotpvm); // Views/Authentication/VerifyOtp.cshtml
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> VerifyOtp(VerifyOtpVM vm)
+        public async Task<IActionResult> VerifyOtp(VerifyOtpVM verifyotpvm)
         {
-            if (!ModelState.IsValid) return View(vm);
+            if (!ModelState.IsValid) return View(verifyotpvm);
 
-            if (!_otpService.Verify(vm.Email, vm.Purpose, vm.Otp))
+            if (!_otpService.Verify(verifyotpvm.Email, verifyotpvm.Purpose, verifyotpvm.Otp))
             {
                 ModelState.AddModelError(string.Empty, "Invalid or expired code. Please try again.");
-                return View(vm);
+                return View(verifyotpvm);
             }
 
             // OTP OK -> Confirm email trong Identity
-            var user = await _userManager.FindByEmailAsync(vm.Email);
+            var user = await _userManager.FindByEmailAsync(verifyotpvm.Email);
             if (user == null) return NotFound();
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -288,11 +287,11 @@ namespace UrlShortener.MVC.Controllers
             {
                 // (tuỳ chọn) đăng nhập luôn:
                 // await _signInManager.SignInAsync(user, isPersistent:false);
-                return LocalRedirect(vm.ReturnUrl);
+                return LocalRedirect(verifyotpvm.ReturnUrl);
             }
 
             foreach (var e in result.Errors) ModelState.AddModelError("", e.Description);
-            return View(vm);
+            return View(verifyotpvm);
         }
 
 
