@@ -23,7 +23,7 @@ namespace UrlShortener.MVC.ViewComponents
                 OriginalUrl = u.OriginalUrl,
                 ShortCode = u.ShortCode,
                 CreatedAt = u.CreatedAt,
-                // ClickCount not present on entity; default 0
+                ClickCount = u.ClickCount,
             }).ToList();
 
             return View("Default", viewModels);

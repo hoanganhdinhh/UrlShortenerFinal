@@ -5,6 +5,9 @@ using UrlShortener.MVC.Data;
 using UrlShortener.MVC.Data.Entities.Identities;
 using UrlShortener.Services.Otp;
 using UrlShortener.Services.Mail.Mailjet;
+using FluentValidation.AspNetCore;
+using UrlShortener.MVC.Validation;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,8 @@ builder.Services.AddMailjet(builder.Configuration);
 builder.Services.AddOtpService(builder.Configuration);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<UrlVMValidator>();
 
 builder.Services.AddDbContext<UrlShortenerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("UrlShortenerConnection")));
