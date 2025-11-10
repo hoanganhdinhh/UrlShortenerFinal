@@ -58,7 +58,7 @@ else
                 <span class="input-group-text bg-transparent border-0">
                     <i class="bi bi-search text-muted"></i>
                 </span>
-                <input type="text" class="form-control border-0" placeholder="Search by URL or slug..." />
+                <input id="urlSearch" type="text" class="form-control border-0" placeholder="Search by URL or slug..." />
             </div>
 
             <!-- URL Table -->
@@ -79,7 +79,7 @@ else
                             <tr>
                                 <td>
                                     <a href="@($"/r/{item.ShortCode}")" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
-                                        @Html.Encode(item.ShortCode) <i class="bi bi-box-arrow-up-right"></i>
+                                        localhost:7244/r/@Html.Encode(item.ShortCode) <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                     <button type="button" class="btn btn-link p-0 ms-2" onclick="copyToClipboard('@($"/r/{item.ShortCode}")')">
                                         <i class="bi bi-clipboard"></i>
@@ -95,7 +95,7 @@ else
                                 </td>
                                 <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
                                 <td>
-                                    <button type="button" class="btn btn-link p-0 me-2" onclick="openQrCodeModal('@item.ShortCode')">
+                                    <button type="button" class="btn btn-link p-0 me-2" onclick="openModalDetails('@item.Id')">
                                         <i class="bi bi-qr-code"></i>
                                     </button>
                                     <button type="button" class="btn btn-link p-0 me-2" onclick="openModalEditUrl(@item.Id)">

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace UrlShortener.MVC.Controllers
 {
@@ -49,7 +50,7 @@ namespace UrlShortener.MVC.Controllers
             var url = await _context.Urls.FirstOrDefaultAsync(m => m.Id == id);
             if (url == null) return NotFound();
 
-            return View(url);
+            return PartialView(url);
         }
 
         // GET: /Urls/Create
@@ -72,6 +73,8 @@ namespace UrlShortener.MVC.Controllers
             urlVM.CreatedAt = DateTime.UtcNow;
             urlVM.ClickCount = 0;
 
+            var  userId = User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+            urlVM.UserId = userId;
             // Uniqueness check (friendly validation error)
             if (await _context.Urls.AnyAsync(u => u.ShortCode == urlVM.ShortCode))
                 ModelState.AddModelError(nameof(UrlVM.ShortCode), "Short code already exists. Please choose another.");

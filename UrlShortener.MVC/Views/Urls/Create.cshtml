@@ -121,6 +121,7 @@
                 let divUrlList = document.getElementById("divUrlList");
                 if(divUrlList) {
                     divUrlList.innerHTML = response;
+                    initUrlListSearch();
                 }
             },
             error: function(xhr, status, error) {
@@ -161,42 +162,6 @@
         });
     }
 
-    // function editUrl(idUrl, originalUrl, shortCode) {
-    //     let inputToken = document.querySelector('input[name="__RequestVerificationToken"]');
-    //     let token = inputToken?.value;
-    //     $.ajax({
-    //         url: "/Urls/Edit",
-    //         type: "POST",
-    //         data:{
-    //             Id: idUrl,
-    //             OriginalUrl: originalUrl,
-    //             ShortCode: shortCode,
-    //             __RequestVerificationToken: token
-    //         },
-    //         beforeSend: function(){
-    //             console.log("Deleting...");
-    //         },
-    //         success: function (response){
-    //             console.log("Kết quả:", response);
-    //             if(response.isOK) {
-    //                 reloadUrlList();
-    //                 closeModal();
-    //             } else {
-    //                 console.log("Lỗi khi chỉnh sửa URL:", response.errorMessage);
-    //             }
-
-    //         },
-    //         error: function(xhr, status, error) {
-    //             console.error("Lỗi:", error);
-    //             console.log("Chi tiết:", xhr.responseText);
-    //         },
-    //         complete: function() {
-    //             console.log("Hoàn tất AJAX request");
-    //         },
-    //         timeout: 5000
-
-    //     });
-    // }
 
     document.addEventListener('click', function (e) {
         if (!e.target) return;
@@ -233,5 +198,66 @@
             });
         }
     });
+
+
+        function openModalDetails(idUrl) {
+        $.ajax({
+            url: "/Urls/Details",
+            type: "GET",
+            data:{
+                id: idUrl,
+            },
+            beforeSend: function(){
+                console.log("Loading...");
+            },
+            success: function (response){
+                console.log("Kết quả:", response);
+                openModal("", response);
+            },
+            error: function(xhr, status, error) {
+                console.error("Lỗi:", error);
+                console.log("Chi tiết:", xhr.responseText);
+            },
+            complete: function() {
+                console.log("Hoàn tất AJAX request");
+            },
+            timeout: 5000
+
+        });
+    }
+
+    function handleUrlSearchInput(e) {
+        const input = e.currentTarget;
+        window._urlSearchTimeout = window._urlSearchTimeout || null;
+        clearTimeout(window._urlSearchTimeout);
+        window._urlSearchTimeout = setTimeout(() => {
+            const q = input.value.trim().toLowerCase();
+            const rows = document.querySelectorAll('table.table tbody tr');
+            if (!q) {
+                rows.forEach(r => r.style.display = '');
+                return;
+            }
+
+            rows.forEach(r => {
+                const shortTd = r.querySelector('td:nth-child(1)');
+                const origTd = r.querySelector('td:nth-child(2)');
+                const shortText = shortTd ? shortTd.textContent.trim().toLowerCase() : '';
+                const origText = origTd ? origTd.textContent.trim().toLowerCase() : '';
+                const match = shortText.indexOf(q) !== -1 || origText.indexOf(q) !== -1;
+                r.style.display = match ? '' : 'none';
+            });
+        }, 200);
+    }
+
+    function initUrlListSearch() {
+        const input = document.getElementById('urlSearch');
+        if (!input) return;
+        // remove previous to avoid duplicate handlers
+        input.removeEventListener('input', handleUrlSearchInput);
+        input.addEventListener('input', handleUrlSearchInput);
+    }
+
+    // Call initializer once on initial page script execution
+    initUrlListSearch();
 
 </script>

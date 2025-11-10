@@ -97,6 +97,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     //options.LoginPath = "/Identity/Account/Login";
     options.LoginPath = "/Authentication/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+
 });
 
 //builder.Services.ConfigureApplicationCookie(o =>

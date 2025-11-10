@@ -15,34 +15,6 @@
             <h1 class="auth-title">Welcome back</h1>
             <p class="auth-subtitle">Log in to continue managing your short URLs</p>
 
-            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
-            {
-                <form id="external-account"
-                      asp-controller="Authentication"
-                      asp-action="ExternalLogin"
-                      asp-route-returnUrl="@Model.ReturnUrl"
-                      method="post" class="w-100">
-                    @foreach (var provider in Model.ExternalLogins!)
-                    {
-                        var icon = provider.Name.ToLower() switch
-                        {
-                            "google" => "google",
-                            "microsoft" => "microsoft",
-                            "facebook" => "facebook",
-                            _ => "default"
-                        };
-                        <button type="submit" class="btn oauth-btn w-100 mb-3"
-                                name="provider" value="@provider.Name"
-                                title="Continue with @provider.DisplayName">
-                            @Html.Raw(GetSvg(icon))
-                            <span>Continue with @provider.DisplayName</span>
-                        </button>
-                    }
-                </form>
-            }
-
-            <div class="separator"><span>OR</span></div>
-
             <form id="account" method="post" class="w-100" novalidate>
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-2" role="alert"></div>
 
@@ -77,6 +49,35 @@
                     <a asp-controller="Authentication" asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl">Create one</a>
                 </p>
             </form>
+
+            <div class="separator"><span>OR</span></div>
+
+            
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                <form id="external-account"
+                      asp-controller="Authentication"
+                      asp-action="ExternalLogin"
+                      asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post" class="w-100">
+                    @foreach (var provider in Model.ExternalLogins!)
+                    {
+                        var icon = provider.Name.ToLower() switch
+                        {
+                            "google" => "google",
+                            "microsoft" => "microsoft",
+                            "facebook" => "facebook",
+                            _ => "default"
+                        };
+                        <button type="submit" class="btn oauth-btn w-100 mb-3"
+                                name="provider" value="@provider.Name"
+                                title="Continue with @provider.DisplayName">
+                            @Html.Raw(GetSvg(icon))
+                            <span>Continue with @provider.DisplayName</span>
+                        </button>
+                    }
+                </form>
+            }
         </div>
     </div>
 </div>
@@ -98,7 +99,7 @@
             <rect width='10' height='10' x='0' y='0' fill='#F35325'/><rect width='10' height='10' x='13' y='0' fill='#81BC06'/>
             <rect width='10' height='10' x='0' y='13' fill='#05A6F0'/><rect width='10' height='10' x='13' y='13' fill='#FFBA08'/>
         </svg>",
-        "facebook" => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 24 24' fill='currentColor'>
+        "facebook" => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 22 22' fill='blue'>
             <path d='M22 12.07C22 6.48 17.52 2 11.93 2 6.35 2 1.86 6.48 1.86 12.07c0 5 3.66 9.14 8.44 9.93v-7.03H7.9v-2.9h2.4V9.85c0-2.37 1.41-3.69 3.56-3.69 1.03 0 2.11.18 2.11.18v2.32h-1.19c-1.17 0-1.54.73-1.54 1.48v1.77h2.62l-.42 2.9h-2.2V22c4.78-.79 8.44-4.93 8.44-9.93z'/>
         </svg>",
         _ => @"<svg aria-hidden='true' width='20' height='20' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='currentColor'/></svg>"
