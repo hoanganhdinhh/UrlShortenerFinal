@@ -1,4 +1,4 @@
-﻿namespace UrlShortener.Services;
+﻿namespace UrlShortener.Services.Mail.Mailjet;
 
 public class MailjetOptions
 {

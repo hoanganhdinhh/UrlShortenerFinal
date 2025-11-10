@@ -1,10 +1,10 @@
-using UrlShortener.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UrlShortener.MVC.Data;
 using UrlShortener.MVC.Data.Entities.Identities;
 using UrlShortener.Services.Otp;
+using UrlShortener.Services.Mail.Mailjet;
 
 var builder = WebApplication.CreateBuilder(args);
 

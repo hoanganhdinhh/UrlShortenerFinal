@@ -1,4 +1,4 @@
-﻿@model IEnumerable<UrlShortener.MVC.Models.UrlVM>
+﻿@* @model IEnumerable<UrlShortener.MVC.Models.UrlVM>
 @if (Model == null || !Model.Any())
 {
     <div class="alert alert-info">No shortened URLs yet.</div>
@@ -41,4 +41,92 @@ else
             </tbody>
         </table>
     </div>
+} *@
+
+@model IEnumerable<UrlShortener.MVC.Models.UrlVM>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info text-center">No shortened URLs yet.</div>
+}
+else
+{
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <!-- Search Bar -->
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-transparent border-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-0" placeholder="Search by URL or slug..." />
+            </div>
+
+            <!-- URL Table -->
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle">
+                    <thead class="text-muted">
+                        <tr>
+                            <th>Short URL</th>
+                            <th>Original URL</th>
+                            <th>Clicks</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="@($"/r/{item.ShortCode}")" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                        @Html.Encode(item.ShortCode) <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-link p-0 ms-2" onclick="copyToClipboard('@($"/r/{item.ShortCode}")')">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <a href="@Html.Encode(item.OriginalUrl)" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                        @Html.Encode(item.OriginalUrl)
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-primary">@item.ClickCount.ToString("N0")</span>
+                                </td>
+                                <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <button type="button" class="btn btn-link p-0 me-2" onclick="openQrCodeModal('@item.ShortCode')">
+                                        <i class="bi bi-qr-code"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-link p-0 me-2" onclick="openModalEditUrl(@item.Id)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-link p-0 text-danger" onclick="openModalDeleteUrl(@item.Id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                console.log("Copied to clipboard:", text);
+            }).catch(err => {
+                console.error("Failed to copy:", err);
+            });
+        }
+
+        function openQrCodeModal(shortCode) {
+            console.log("Open QR Code modal for:", shortCode);
+            // Implement modal logic here
+        }
+    </script>
 }

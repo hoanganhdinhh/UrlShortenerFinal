@@ -47,6 +47,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
+using UrlShortener.Services.Mail.Mailjet;
 
 namespace UrlShortener.MVC.Controllers
 {
@@ -74,7 +75,7 @@ namespace UrlShortener.MVC.Controllers
             return Content("Sent");
         }
         [HttpGet("/debug/mailjet")]
-        public IActionResult DebugMailjet([FromServices] Microsoft.Extensions.Options.IOptions<UrlShortener.Services.MailjetOptions> opt)
+        public IActionResult DebugMailjet([FromServices] Microsoft.Extensions.Options.IOptions<MailjetOptions> opt)
         {
             var o = opt.Value;
             return Content($"ApiKey? {(string.IsNullOrEmpty(o.ApiKey) ? "MISSING" : "OK")}, " +

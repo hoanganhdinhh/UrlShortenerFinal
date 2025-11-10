@@ -4,42 +4,35 @@
     ViewData["Title"] = "Create";
 }
 
-
-<h4>Shorten Url</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="OriginalUrl" class="control-label"></label>
-                <input asp-for="OriginalUrl" class="form-control" />
-                <span asp-validation-for="OriginalUrl" class="text-danger"></span>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Shorten URL</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-3"></div>
+                        <div class="mb-3">
+                            <label asp-for="OriginalUrl" class="form-label"></label>
+                            <input asp-for="OriginalUrl" class="form-control" placeholder="Enter original URL" />
+                            <span asp-validation-for="OriginalUrl" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="ShortCode" class="form-label"></label>
+                            <input asp-for="ShortCode" class="form-control" placeholder="Custom short code (optional)" />
+                            <span asp-validation-for="ShortCode" class="text-danger small"></span>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="bi bi-link-45deg"></i> Shorten
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShortCode" class="control-label"></label>
-                <input asp-for="ShortCode" class="form-control" />
-                <span asp-validation-for="ShortCode" class="text-danger"></span>
-            </div>
-            @* <div class="form-group">
-                <label asp-for="ClickCount" class="control-label"></label>
-                <input asp-for="ClickCount" class="form-control" />
-                <span asp-validation-for="ClickCount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div> 
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" />
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div> *@
-            <div class="form-group">
-                <input type="submit" value="Shorten" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 

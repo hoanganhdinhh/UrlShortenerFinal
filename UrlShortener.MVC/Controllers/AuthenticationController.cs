@@ -478,63 +478,63 @@ namespace UrlShortener.MVC.Controllers
             return (IUserEmailStore<UrlShortenerUser>)_userStore;
         }
 
-        //[HttpGet]
-        //public IActionResult ForgotPassword()
-        //{
-        //    return View(); // Views/Authentication/ForgotPassword.cshtml
-        //}
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View(); // Views/Authentication/ForgotPassword.cshtml
+        }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> ForgotPassword(string email)
-        //{
-        //    if (string.IsNullOrWhiteSpace(email))
-        //    {
-        //        ModelState.AddModelError(string.Empty, "Email is required.");
-        //        return View();
-        //    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                ModelState.AddModelError(string.Empty, "Email is required.");
+                return View();
+            }
 
-        //    var user = await _userManager.FindByEmailAsync(email);
-        //    if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-        //    {
-        //        // Don't reveal that the user does not exist or is not confirmed
-        //        return RedirectToAction(nameof(ForgotPasswordConfirmation));
-        //    }
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            {
+                // Don't reveal that the user does not exist or is not confirmed
+                return RedirectToAction(nameof(ForgotPasswordConfirmation));
+            }
 
-        //    // Generate OTP code for password reset
-        //    const string purpose = "reset-password";
-        //    var otp = await _otpService.GenerateAndReturnCodeAsync(email, purpose);
+            // Generate OTP code for password reset
+            const string purpose = "reset-password";
+            var otp = await _otpService.GenerateAndReturnCodeAsync(email, purpose);
 
-        //    // Send OTP via email
-        //    await _emailSender.SendEmailAsync(
-        //        email,
-        //        "Your Password Reset Code",
-        //        $@"<p>You requested to reset your password.</p>
-        //   <p>Your OTP code is:</p>
-        //   <h2 style='letter-spacing:4px'>{otp}</h2>
-        //   <p>This code expires in 10 minutes.</p>");
+            // Send OTP via email
+            await _emailSender.SendEmailAsync(
+                email,
+                "Your Password Reset Code",
+                $@"<p>You requested to reset your password.</p>
+           <p>Your OTP code is:</p>
+           <h2 style='letter-spacing:4px'>{otp}</h2>
+           <p>This code expires in 10 minutes.</p>");
 
-        //    return RedirectToAction(nameof(ForgotPasswordConfirmation), new { email });
-        //}
+            return RedirectToAction(nameof(ForgotPasswordConfirmation), new { email });
+        }
 
-        //[HttpGet]
-        //public IActionResult ForgotPasswordConfirmation(string email)
-        //{
-        //    ViewBag.Email = email;
-        //    return View(); // Views/Authentication/ForgotPasswordConfirmation.cshtml
-        //}
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation(string email)
+        {
+            ViewBag.Email = email;
+            return View(); // Views/Authentication/ForgotPasswordConfirmation.cshtml
+        }
 
-        //[HttpGet]
-        //public IActionResult VerifyOtpForPasswordReset(string email)
-        //{
-        //    var vm = new VerifyOtpVM
-        //    {
-        //        Email = email,
-        //        Purpose = "reset-password",
-        //        ReturnUrl = Url.Content("~/")
-        //    };
-        //    return View(vm); // Views/Authentication/VerifyOtp.cshtml
-        //}
+        [HttpGet]
+        public IActionResult VerifyOtpForPasswordReset(string email)
+        {
+            var vm = new VerifyOtpVM
+            {
+                Email = email,
+                Purpose = "reset-password",
+                ReturnUrl = Url.Content("~/")
+            };
+            return View(vm); // Views/Authentication/VerifyOtp.cshtml
+        }
 
         //[HttpPost]
         //[ValidateAntiForgeryToken]
@@ -593,7 +593,7 @@ namespace UrlShortener.MVC.Controllers
         //public IActionResult ResetPasswordConfirmation()
         //{
         //    return View(); // Views/Authentication/ResetPasswordConfirmation.cshtml
-        
+
 
 
     }

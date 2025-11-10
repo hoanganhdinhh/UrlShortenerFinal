@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace UrlShortener.Services;
+namespace UrlShortener.Services.Mail.Mailjet;
 
 public static class EmailServiceExtensions
 {

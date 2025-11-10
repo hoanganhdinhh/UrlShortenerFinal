@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using System.Linq;
 
 
-namespace UrlShortener.Services;
+namespace UrlShortener.Services.Mail.Mailjet;
 
 public class MailjetEmailSender : IEmailSender
 {
