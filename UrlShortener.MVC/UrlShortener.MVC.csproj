@@ -35,7 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UrlShortener.Services.Otp\UrlShortener.Services.Otp.csproj" />
     <ProjectReference Include="..\UrlShortenerServices\UrlShortener.Services.csproj" />
   </ItemGroup>
 

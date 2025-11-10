@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using UrlShortener.MVC.Data.Entities.Identities;
 using UrlShortener.MVC.Models.Identities;
+using UrlShortener.Services.Mail.Mailjet;
 using UrlShortener.Services.Otp;
 
 namespace UrlShortener.MVC.Controllers

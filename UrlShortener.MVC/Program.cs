@@ -42,8 +42,7 @@ builder.Services.AddIdentity<UrlShortenerUser, UrlShortenerRole>(options =>
     options.SignIn.RequireConfirmedEmail = false;
     options.SignIn.RequireConfirmedPhoneNumber = false;
 }).AddEntityFrameworkStores<UrlShortenerIdentityDbContext>()
-    .AddDefaultTokenProviders()
-    .AddDefaultUI();
+    .AddDefaultTokenProviders();
 
 // Google login
 builder.Services.AddAuthentication()
