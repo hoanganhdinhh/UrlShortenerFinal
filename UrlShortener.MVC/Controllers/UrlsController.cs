@@ -50,6 +50,10 @@ namespace UrlShortener.MVC.Controllers
             var url = await _context.Urls.FirstOrDefaultAsync(m => m.Id == id);
             if (url == null) return NotFound();
 
+            var scheme = HttpContext?.Request?.Scheme ?? "https";
+            var host = HttpContext?.Request?.Host.Value ?? string.Empty;
+            ViewData["Host"] = string.IsNullOrEmpty(host) ? string.Empty : $"{scheme}://{host}/r/";
+
             return PartialView(url);
         }
 

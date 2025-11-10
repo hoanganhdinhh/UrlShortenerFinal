@@ -26,6 +26,12 @@ namespace UrlShortener.MVC.ViewComponents
                 ClickCount = u.ClickCount,
             }).ToList();
 
+            // Provide host information for the component view. This ensures
+            // the view can render full short links like "https://example.com/r/abc".
+            var scheme = HttpContext?.Request?.Scheme ?? "https";
+            var host = HttpContext?.Request?.Host.Value ?? string.Empty;
+            ViewData["Host"] = string.IsNullOrEmpty(host) ? string.Empty : $"{scheme}://{host}/r/";
+
             return View("Default", viewModels);
         }
     }

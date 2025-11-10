@@ -79,7 +79,7 @@ else
                             <tr>
                                 <td>
                                     <a href="@($"/r/{item.ShortCode}")" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
-                                        localhost:7244/r/@Html.Encode(item.ShortCode) <i class="bi bi-box-arrow-up-right"></i>
+                                        @ViewData["Host"]@item.ShortCode <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                     <button type="button" class="btn btn-link p-0 ms-2" onclick="copyToClipboard('@($"/r/{item.ShortCode}")')">
                                         <i class="bi bi-clipboard"></i>
