@@ -77,8 +77,8 @@ namespace UrlShortener.MVC.Controllers
             urlVM.CreatedAt = DateTime.UtcNow;
             urlVM.ClickCount = 0;
 
-            var  userId = User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-            urlVM.UserId = userId;
+            //var  userId = User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+            //urlVM.UserId = userId;                                     //Error
             // Uniqueness check (friendly validation error)
             if (await _context.Urls.AnyAsync(u => u.ShortCode == urlVM.ShortCode))
                 ModelState.AddModelError(nameof(UrlVM.ShortCode), "Short code already exists. Please choose another.");
@@ -108,9 +108,36 @@ namespace UrlShortener.MVC.Controllers
             catch (DbUpdateException ex)
             {
                 _logger.LogError(ex, "Create Url failed");
-                ModelState.AddModelError(string.Empty, "Colud not save URL. Try a different short code.");
+
+                var baseMsg = ex.GetBaseException().Message ?? string.Empty;
+
+                if (baseMsg.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase) ||
+                    baseMsg.Contains("duplicate", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Likely caused by a duplicate ShortCode (or OriginalUrl if indexed).
+                    ModelState.AddModelError(nameof(UrlVM.ShortCode),
+                        "This short code already exists. Please choose another one.");
+                }
+                else if (baseMsg.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(string.Empty,
+                        "User reference is invalid. Please log in again and try.");
+                }
+                else if (baseMsg.Contains("string or binary data would be truncated",
+                         StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(UrlVM.ShortCode),
+                        "The short code is too long for the database column.");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty,
+                        "Could not save the URL. Please try again.");
+                }
+
                 return View(urlVM);
             }
+
         }
 
         [HttpGet("/r/{code}", Name = "ShortRedirect")]
