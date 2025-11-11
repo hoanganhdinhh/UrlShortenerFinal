@@ -77,8 +77,8 @@ namespace UrlShortener.MVC.Controllers
             urlVM.CreatedAt = DateTime.UtcNow;
             urlVM.ClickCount = 0;
 
-            //var  userId = User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-            //urlVM.UserId = userId;                                     //Error
+            var userId = User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+            urlVM.UserId = userId;                                    
             // Uniqueness check (friendly validation error)
             if (await _context.Urls.AnyAsync(u => u.ShortCode == urlVM.ShortCode))
                 ModelState.AddModelError(nameof(UrlVM.ShortCode), "Short code already exists. Please choose another.");
