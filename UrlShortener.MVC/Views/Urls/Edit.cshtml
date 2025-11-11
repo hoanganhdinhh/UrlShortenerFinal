@@ -1,54 +1,108 @@
 ﻿@model UrlShortener.MVC.Data.Entities.Url
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit URL";
+    var shortAbsolute = $"{ViewData["Host"]}";
 }
 
-<h1>Edit</h1>
-
-<h4>Url</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="OriginalUrl" class="control-label"></label>
-                <input asp-for="OriginalUrl" class="form-control" />
-                <span asp-validation-for="OriginalUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ShortCode" class="control-label"></label>
-                <input asp-for="ShortCode" class="form-control" />
-                <span asp-validation-for="ShortCode" class="text-danger"></span>
-            </div>
-            @* <div class="form-group">
-                <label asp-for="ClickCount" class="control-label"></label>
-                <input asp-for="ClickCount" class="form-control" />
-                <span asp-validation-for="ClickCount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" />
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div> *@
-            <div class="form-group justify-content-end">
-                <input type="button"
-                       id="btnSaveEdit"
-                       value="Save"
-                       class="btn btn-primary" />
-            </div>
-        </form>
+<!-- Compact Modal Layout -->
+<div class="px-2 py-1">
+    <!-- Header Section - Compact -->
+    <div class="text-center mb-3">
+        <div class="d-inline-flex align-items-center justify-content-center mb-2"
+             style="width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #6366f1, #a855f7); box-shadow: 0 6px 16px rgba(79,70,229,.2);">
+     <i class="bi bi-pencil-square text-white" style="font-size: 1.5rem;"></i>
+        </div>
+      <h4 class="fw-bold mb-1">Edit URL</h4>
+        <p class="text-muted small mb-0">Update your shortened URL details</p>
     </div>
+
+    <!-- Edit Form -->
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+     <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          <span>Please correct the errors below.</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+<input type="hidden" asp-for="Id" />
+
+        <!-- Original URL Field - Compact -->
+    <div class="mb-3">
+            <label asp-for="OriginalUrl" class="form-label fw-semibold small mb-2">
+         <i class="bi bi-link-45deg me-1 text-primary"></i>
+    Original URL
+        </label>
+    <input asp-for="OriginalUrl"
+     class="form-control"
+      placeholder="https://example.com/your-long-url"
+           style="border-radius: 0.5rem; border: 2px solid #e5e7eb;" />
+       <span asp-validation-for="OriginalUrl" class="text-danger small d-block mt-1"></span>
+        </div>
+
+        <!-- Short Code Field - Compact -->
+        <div class="mb-3">
+       <label asp-for="ShortCode" class="form-label fw-semibold small mb-2">
+   <i class="bi bi-lightning-charge me-1 text-warning"></i>
+      Short Code
+            </label>
+            <div class="input-group" style="border-radius: 0.5rem;">
+         <span class="input-group-text bg-light border-2 px-2"
+              style="border-color: #e5e7eb; border-top-left-radius: 0.5rem; border-bottom-left-radius: 0.5rem;">
+       <small class="text-muted" style="font-size: 0.8rem;">@ViewData["Host"]</small>
+          </span>
+       <input asp-for="ShortCode"
+              class="form-control border-2"
+             placeholder="custom-code"
+      style="border-color: #e5e7eb; border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;" />
+            </div>
+    <span asp-validation-for="ShortCode" class="text-danger small d-block mt-1"></span>
+ <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+    <i class="bi bi-info-circle me-1"></i>
+     Use only letters, numbers, hyphens, and underscores
+            </small>
+        </div>
+
+        <!-- Metadata Display - Compact Inline -->
+     <div class="d-flex gap-3 mb-3 p-2 rounded" style="background-color: #f8fafc;">
+        <div class="d-flex align-items-center flex-fill">
+  <i class="bi bi-calendar-event text-primary me-2" style="font-size: 1.1rem;"></i>
+     <div>
+          <small class="text-muted d-block" style="font-size: 0.7rem; line-height: 1;">Created</small>
+        <small class="fw-semibold" style="font-size: 0.85rem;">@Model.CreatedAt.ToString("MMM dd, yyyy")</small>
+            </div>
+            </div>
+         <div class="d-flex align-items-center flex-fill">
+       <i class="bi bi-cursor-fill text-success me-2" style="font-size: 1.1rem;"></i>
+  <div>
+   <small class="text-muted d-block" style="font-size: 0.7rem; line-height: 1;">Clicks</small>
+   <small class="fw-semibold" style="font-size: 0.85rem;">@Model.ClickCount</small>
+         </div>
+            </div>
+      </div>
+
+        <!-- Action Buttons - Compact -->
+        <div class="d-flex gap-2">
+            <button type="button"
+           id="btnSaveEdit"
+        class="btn flex-fill fw-semibold"
+        style="background: linear-gradient(90deg, #2F6BFF 0%, #8A2EFF 100%); color: white; border: 0; border-radius: 0.5rem; padding: 0.6rem 1rem; box-shadow: 0 8px 18px rgba(65, 87, 255, .2);">
+         <i class="bi bi-check-circle me-1"></i>
+                Save
+            </button>
+      <button type="button"
+            onclick="closeModal()"
+        class="btn btn-outline-secondary flex-fill"
+   style="border-radius: 0.5rem; border-width: 2px; padding: 0.6rem 1rem;">
+   <i class="bi bi-x-circle me-1"></i>
+     Cancel
+   </button>
+        </div>
+    </form>
 </div>
 
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+      await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

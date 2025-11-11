@@ -2,53 +2,68 @@
 
 @{
     ViewData["Title"] = "Details";
+    var shortAbsolute = $"{ViewData["Host"]}{Model.ShortCode}";
 }
 
-<h1>Details</h1>
+<div class="card shadow-sm border-0" data-short-absolute="@shortAbsolute" data-short-code="@Model.ShortCode">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4 text-center">
+                <div class="mb-3">
+                    <img id="qrImage" src="/r/qrcode/@Model.ShortCode" alt="QR code" class="img-fluid rounded border" style="max-width:220px;" />
+                </div>
 
-<div>
-    <h4>Url</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.OriginalUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.OriginalUrl)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ShortCode)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ShortCode)
-        </dd>
-        <dt class = "col-sm-2">
-            QR Code
-        </dt>
-        <dd class = "col-sm-10">
-            <img src="/r/qrcode/@Model.ShortCode" class="img-fluid" style="max-width:150px; height:auto;" alt="QR code" />
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ClickCount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ClickCount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UserId)
-        </dd>
-    </dl>
+                <div class="d-grid gap-2">
+                    <a href="/r/@Model.ShortCode" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Open Short Link
+                    </a>
+                    <button id="btnCopyShort" type="button" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-clipboard me-1"></i> Copy Short URL
+                    </button>
+                    <button id="btnDownloadQr" type="button" class="btn btn-primary btn-sm">
+                        <i class="bi bi-download me-1"></i> Download QR
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <h5 class="card-title mb-2">Original URL</h5>
+                <p class="mb-2 text-break">
+                    <a href="@Model.OriginalUrl" target="_blank" rel="noopener noreferrer" class="text-decoration-none">@Model.OriginalUrl</a>
+                </p>
+
+                <h6 class="text-muted small mt-3">Short URL</h6>
+                <div class="d-flex align-items-center mb-3">
+                    <code class="p-2 bg-light rounded me-2" style="word-break:break-all;">@shortAbsolute</code>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-sm-4">
+                        <div class="border rounded p-2 text-center">
+                            <small class="text-muted">Clicks</small>
+                            <div class="fw-bold fs-5">@Model.ClickCount.ToString("N0")</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="border rounded p-2 text-center">
+                            <small class="text-muted">Created</small>
+                            <div class="fw-bold">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="border rounded p-2 text-center">
+                            <small class="text-muted">Owner</small>
+                            <div class="fw-bold text-truncate">@Model.UserId</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@section Scripts {
+    <script>
+
+    </script>
+}

@@ -50,6 +50,10 @@ namespace UrlShortener.MVC.Controllers
             var url = await _context.Urls.FirstOrDefaultAsync(m => m.Id == id);
             if (url == null) return NotFound();
 
+            var scheme = HttpContext?.Request?.Scheme ?? "https";
+            var host = HttpContext?.Request?.Host.Value ?? string.Empty;
+            ViewData["Host"] = string.IsNullOrEmpty(host) ? string.Empty : $"{scheme}://{host}/r/";
+
             return PartialView(url);
         }
 
@@ -191,6 +195,10 @@ namespace UrlShortener.MVC.Controllers
             var url = await _context.Urls.FindAsync(id);
             if (url == null) return NotFound();
 
+            var scheme = HttpContext?.Request?.Scheme ?? "https";
+            var host = HttpContext?.Request?.Host.Value ?? string.Empty;
+            ViewData["Host"] = string.IsNullOrEmpty(host) ? string.Empty : $"{scheme}://{host}/r/";
+
             return PartialView(url);
         }
 
@@ -216,11 +224,9 @@ namespace UrlShortener.MVC.Controllers
 
             if (!ModelState.IsValid) return View(dbUrl);
 
-            // Apply allowed changes (protect CreatedAt & ClickCount)
+            // Apply allowed changes (protect CreatedAt, ClickCount, and UserId)        
             dbUrl.OriginalUrl = urlVM.OriginalUrl;
             dbUrl.ShortCode = string.IsNullOrWhiteSpace(normalized) ? dbUrl.ShortCode : normalized;
-            dbUrl.UserId = urlVM.UserId;
-
             try
             {
                 isOK = true;
