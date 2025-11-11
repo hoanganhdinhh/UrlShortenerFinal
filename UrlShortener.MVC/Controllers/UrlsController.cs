@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using UrlShortener.MVC.Data.Entities.Identities;
 
 namespace UrlShortener.MVC.Controllers
 {
@@ -24,13 +26,15 @@ namespace UrlShortener.MVC.Controllers
         private readonly UrlShortenerDbContext _context;
         private readonly ILogger<UrlsController> _logger;
         private readonly LinkGenerator _linkGenerator;
+        private readonly UserManager<UrlShortenerUser> _userManager;
 
         [ActivatorUtilitiesConstructor]
-        public UrlsController(UrlShortenerDbContext context, ILogger<UrlsController> logger, LinkGenerator linkGenerator)
+        public UrlsController(UrlShortenerDbContext context, ILogger<UrlsController> logger, LinkGenerator linkGenerator, UserManager<UrlShortenerUser> userManager)
         {
             _context = context;
             _logger = logger;
-            _linkGenerator = linkGenerator; 
+            _linkGenerator = linkGenerator;
+            _userManager = userManager;
         }
 
         // GET: /Urls
@@ -77,8 +81,20 @@ namespace UrlShortener.MVC.Controllers
             urlVM.CreatedAt = DateTime.UtcNow;
             urlVM.ClickCount = 0;
 
-            var userId = User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-            urlVM.UserId = userId;                                    
+            // Use UserManager for a robust user id lookup
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                // Log claims to help debug missing claim source
+                _logger.LogWarning("Create: missing user id from UserManager.GetUserId. Claims: {Claims}",
+                    string.Join(", ", User?.Claims.Select(c => $"{c.Type}:{c.Value}") ?? Enumerable.Empty<string>()));
+
+                ModelState.AddModelError(string.Empty, "User reference is invalid. Please log in again and try.");
+                return View(urlVM);
+            }
+
+            urlVM.UserId = userId;
+
             // Uniqueness check (friendly validation error)
             if (await _context.Urls.AnyAsync(u => u.ShortCode == urlVM.ShortCode))
                 ModelState.AddModelError(nameof(UrlVM.ShortCode), "Short code already exists. Please choose another.");
