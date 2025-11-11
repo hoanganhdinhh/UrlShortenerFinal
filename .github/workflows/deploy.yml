@@ -25,15 +25,15 @@ jobs:
 
       # Restore dependencies
       - name: Restore dependencies
-        run: dotnet restore ./UrlShortener.MVC.sln
+        run: dotnet restore ./UrlShortener.sln
 
       # Build project
       - name: Build
-        run: dotnet build --configuration Release --no-restore ./UrlShortener.MVC.sln
+        run: dotnet build --configuration Release --no-restore ./UrlShortener.sln
 
       # Run tests
       - name: Test
-        run: dotnet test --no-build --verbosity normal ./UrlShortener.MVC.sln
+        run: dotnet test --no-build --verbosity normal ./UrlShortener.sln
 
       # Build Docker image
       - name: Build Docker Image
