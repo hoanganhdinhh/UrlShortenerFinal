@@ -4,6 +4,11 @@
     ViewData["Title"] = "Delete";
 } *@
 
+@{
+    // show absolute short link with localhost in development
+    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
+    var fullShortLink = $"{baseUrl}/r/{Model.ShortCode}";
+}
 
 <div class="container my-auto">
     <div class="row justify-content-center">
@@ -25,8 +30,8 @@
 
                                 <dt class="col-sm-3 text-muted">Short Link</dt>
                                 <dd class="col-sm-9">
-                                    <a href="@($"/r/{Model.ShortCode}")" target="_blank" rel="noopener noreferrer">
-                                        @Model.ShortCode
+                                    <a href="@fullShortLink" target="_blank" rel="noopener noreferrer">
+                                        @fullShortLink
                                     </a>
                                 </dd>
 
