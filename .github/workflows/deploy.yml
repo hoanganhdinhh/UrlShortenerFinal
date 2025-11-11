@@ -37,7 +37,7 @@ jobs:
 
       # Build Docker image
       - name: Build Docker Image
-        run: docker build -t hoanganhdinh/urlshortenermvc:latest -f ./UrlShortenerMVC/Dockerfile
+        run: docker build -t hoanganhdinh/urlshortenermvc:latest -f ./UrlShortener.MVC/Dockerfile
 
       # Login to Docker Hub
       - name: Login to Docker Hub
