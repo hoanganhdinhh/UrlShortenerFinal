@@ -19,9 +19,9 @@ This project is a URL Shortener built using .NET Core. It allows users to conver
 
 - ✅ The application is **containerized** using a `Dockerfile`.
 - ✅ A **CI/CD pipeline** is implemented using **GitHub Actions**.
-- [] The pipeline **automatically builds** a Docker image on every push to the `main` branch.
+- ✅ The pipeline **automatically builds** a Docker image on every push to the `main` branch.
 - ✅ After testing completes successfully, the pipeline **pushes the image** to a **public container registry** (e.g., Docker Hub) as a **versioned artifact**.
-- [] The final step of the pipeline **automatically deploys** the application to a **PaaS platform** (e.g., Render) by triggering a **deploy hook**.
+- ✅ The final step of the pipeline **automatically deploys** the application to a **PaaS platform** (e.g., Render) by triggering a **deploy hook**.
 
 ---
 
